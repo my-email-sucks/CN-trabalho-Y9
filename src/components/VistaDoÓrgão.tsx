@@ -12,8 +12,9 @@ export const VistaDoÓrgão: React.FC = () => {
   const organ = organsData.organs.find(o => o.id === focusOrganId);
   if (!organ) return null;
 
-  // Use exponential organ health calculation
-  const organHealth = meters.organHealth?.[focusOrganId] || 80;
+  // Use evidence-based organ health calculation
+  const organHealthData = calculateOrganHealth(focusOrganId, selectedHabits);
+  const { health: organHealth, affectingHabits, riskLevel, personalizedMessage } = organHealthData;
   const healthRatio = organHealth / 100;
   
   const getOrganStatus = () => {
@@ -25,53 +26,48 @@ export const VistaDoÓrgão: React.FC = () => {
 
   const organStatus = getOrganStatus();
 
-  // Generate personalized message based on exponential factors
-  const generatePersonalizedMessage = () => {
-    const exponentialFactors = meters.exponentialFactors || { positive: [], negative: [] };
-    const organName = organ.name.toLowerCase();
+  const getPersonalizedAdvice = () => {
+    const badHabits = affectingHabits.filter(h => h.type === 'harmful');
+    const goodHabits = affectingHabits.filter(h => h.type === 'beneficial');
     
-    let message = `Os teus ${organName} estão `;
+    let advice = [];
     
-    if (organHealth >= 80) {
-      message += 'em excelente estado';
-    } else if (organHealth >= 60) {
-      message += 'em bom estado, mas com alguns sinais de stress';
-    } else if (organHealth >= 40) {
-      message += 'em estado preocupante';
-    } else {
-      message += 'em estado crítico';
+    if (badHabits.length > 0) {
+      const worstHabit = badHabits.reduce((worst, current) => 
+        Math.abs(current.impact) > Math.abs(worst.impact) ? current : worst
+      );
+      
+      advice.push({
+        type: 'warning',
+        text: `O teu ${worstHabit.habitName.toLowerCase()} está a causar danos significativos a este órgão. Considera reduzir gradualmente este hábito.`,
+        icon: <AlertTriangle className="w-4 h-4 text-orange-500" />
+      });
     }
     
-    // Add exponential factor impacts
-    const relevantNegative = exponentialFactors.negative.filter(f => 
-      ['smoking', 'alcohol', 'drugs', 'chronic_stress', 'processed_diet'].includes(f.habit.toLowerCase().replace(/\s+/g, '_'))
-    );
-    
-    const relevantPositive = exponentialFactors.positive.filter(f => 
-      ['exercise', 'healthy_diet', 'sleep_consistency', 'hydration'].includes(f.habit.toLowerCase().replace(/\s+/g, '_'))
-    );
-    
-    if (relevantNegative.length > 0) {
-      message += `, principalmente devido aos efeitos exponenciais do ${relevantNegative[0].habit.toLowerCase()}`;
+    if (goodHabits.length > 0) {
+      const bestHabit = goodHabits.reduce((best, current) => 
+        Math.abs(current.impact) > Math.abs(best.impact) ? current : best
+      );
+      
+      advice.push({
+        type: 'success',
+        text: `O teu ${bestHabit.habitName.toLowerCase()} está a ter um impacto positivo. Continua assim!`,
+        icon: <CheckCircle className="w-4 h-4 text-green-500" />
+      });
     }
-    
-    if (relevantPositive.length > 0) {
-      message += `. Felizmente, o teu ${relevantPositive[0].habit.toLowerCase()} está a proporcionar benefícios exponenciais`;
-    }
-    
-    message += `. Estado atual: ${Math.round(organHealth)}% de saúde.`;
     
     if (organHealth < 60) {
-      message += ' Recomenda-se consultar um profissional de saúde.';
+      advice.push({
+        type: 'critical',
+        text: `Este órgão está em estado preocupante. Recomenda-se consultar um profissional de saúde.`,
+        icon: <AlertTriangle className="w-4 h-4 text-red-500" />
+      });
     }
     
-    return message;
+    return advice;
   };
 
-  const personalizedMessage = generatePersonalizedMessage();
-  const exponentialFactors = meters.exponentialFactors || { positive: [], negative: [] };
-  const prioritizedRecommendations = meters.prioritizedRecommendations || [];
-  
+  const personalizedAdvice = getPersonalizedAdvice();
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -112,65 +108,48 @@ export const VistaDoÓrgão: React.FC = () => {
         </div>
 
         {/* Personalized Advice */}
-        {prioritizedRecommendations.length > 0 && (
+        {personalizedAdvice.length > 0 && (
           <div className="mx-6 mt-4 space-y-3">
-            <h4 className="font-semibold text-gray-900">Recomendações Exponenciais</h4>
-            {prioritizedRecommendations.slice(0, 3).map((rec, index) => (
+            <h4 className="font-semibold text-gray-900">Conselhos Personalizados</h4>
+            {personalizedAdvice.map((advice, index) => (
               <div key={index} className={`p-3 rounded-lg flex items-start space-x-3 ${
-                rec.priority === 'critical' ? 'bg-red-50' :
-                rec.priority === 'high' ? 'bg-orange-50' :
+                advice.type === 'warning' ? 'bg-orange-50' :
+                advice.type === 'success' ? 'bg-green-50' :
                 'bg-red-50'
               }`}>
-                {rec.priority === 'critical' ? (
-                  <AlertTriangle className="w-4 h-4 text-red-500" />
-                ) : rec.action.includes('Increase') || rec.action.includes('Improve') ? (
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                ) : (
-                  <AlertTriangle className="w-4 h-4 text-orange-500" />
-                )}
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-800">{rec.action}</p>
-                  <p className="text-xs text-gray-600 mt-1">{rec.rationale}</p>
-                  <p className="text-xs text-gray-500 mt-1">{rec.expectedImpact}</p>
-                </div>
+                {advice.icon}
+                <p className="text-sm text-gray-700 flex-1">{advice.text}</p>
               </div>
             ))}
           </div>
         )}
 
-        {/* Exponential Factors Affecting This Organ */}
-        {(exponentialFactors.positive.length > 0 || exponentialFactors.negative.length > 0) && (
+        {/* Current Habits Affecting This Organ */}
+        {affectingHabits.length > 0 && (
           <div className="mx-6 mt-4">
-            <h4 className="font-semibold text-gray-900 mb-3">Fatores Exponenciais</h4>
+            <h4 className="font-semibold text-gray-900 mb-3">Hábitos que Afetam Este Órgão</h4>
             <div className="space-y-2">
-              {exponentialFactors.negative.slice(0, 2).map((factor, index) => (
+              {affectingHabits.map(({ habitName, impact, level, mechanism }, index) => (
                 <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                   <div className="flex items-center space-x-2">
-                    <TrendingDown className="w-4 h-4 text-red-500" />
+                    {impact > 0 ? (
+                      <TrendingUp className="w-4 h-4 text-green-500" />
+                    ) : (
+                      <TrendingDown className="w-4 h-4 text-red-500" />
+                    )}
                     <div>
-                      <span className="text-sm font-medium">{factor.habit}</span>
-                      <p className="text-xs text-gray-500">Impacto exponencial negativo</p>
+                      <span className="text-sm font-medium">{habitName}</span>
+                      <p className="text-xs text-gray-500">{mechanism}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs font-medium text-red-600">
-                      -{Math.round(factor.impact)}%
+                    <span className="text-xs text-gray-500">
+                      Nível {level}
                     </span>
-                  </div>
-                </div>
-              ))}
-              {exponentialFactors.positive.slice(0, 2).map((factor, index) => (
-                <div key={`pos-${index}`} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                  <div className="flex items-center space-x-2">
-                    <TrendingUp className="w-4 h-4 text-green-500" />
-                    <div>
-                      <span className="text-sm font-medium">{factor.habit}</span>
-                      <p className="text-xs text-gray-500">Benefício exponencial</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xs font-medium text-green-600">
-                      +{Math.round(factor.impact)}%
+                    <span className={`text-xs font-medium ${
+                      impact > 0 ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {impact > 0 ? '+' : ''}{Math.round(Math.abs(impact))}%
                     </span>
                   </div>
                 </div>
@@ -178,7 +157,6 @@ export const VistaDoÓrgão: React.FC = () => {
             </div>
           </div>
         )}
-        
         {/* What Happens Section */}
         <div className="p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
@@ -215,11 +193,11 @@ export const VistaDoÓrgão: React.FC = () => {
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
             <h4 className="font-semibold text-blue-900 mb-2">Dicas de Recuperação</h4>
             <ul className="text-sm text-blue-800 space-y-1">
-              {organHealth < 60 && <li>• Reduz gradualmente os hábitos prejudiciais</li>}
+              {riskLevel === 'high' || riskLevel === 'critical' && <li>• Reduz gradualmente os hábitos prejudiciais</li>}
               {!selectedHabits['exercise']?.level && <li>• Aumenta a atividade física regular</li>}
               {!selectedHabits['healthy_diet']?.level && <li>• Mantém uma alimentação equilibrada</li>}
               {!selectedHabits['sleep_consistency']?.level && <li>• Garante um sono reparador</li>}
-              {organHealth < 40 && <li>• Procura apoio médico se necessário</li>}
+              {riskLevel === 'critical' && <li>• Procura apoio médico se necessário</li>}
               {selectedHabits['smoking']?.level > 0 && <li>• Considera programas de cessação tabágica</li>}
               {selectedHabits['alcohol']?.level > 2 && <li>• Reduz o consumo de álcool gradualmente</li>}
               {!selectedHabits['hydration']?.level && <li>• Mantém uma hidratação adequada</li>}
@@ -230,7 +208,7 @@ export const VistaDoÓrgão: React.FC = () => {
         {/* Footer */}
         <div className="p-6 bg-gray-50 border-t">
           <p className="text-xs text-gray-500 text-center">
-            Esta informação usa cálculos exponenciais baseados em investigação médica e destina-se apenas a fins educativos. Consulta um profissional de saúde para orientação médica.
+            Esta informação é apenas educativa. Consulta um profissional de saúde para orientação médica.
           </p>
         </div>
       </div>

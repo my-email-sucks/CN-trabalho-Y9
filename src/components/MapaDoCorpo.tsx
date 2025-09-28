@@ -11,8 +11,9 @@ export const MapaDoCorpo: React.FC = () => {
   }, [focusOrganId, setFocusOrgan]);
 
   const getOrganColor = (organId: string, baseColor: string, affectedColor: string) => {
-    // Use exponential organ health calculation
-    const organHealth = meters.organHealth?.[organId] || 80;
+    // Use evidence-based organ health calculation
+    const organHealthData = calculateOrganHealth(organId, selectedHabits);
+    const organHealth = organHealthData.health;
     const healthRatio = organHealth / 100;
     
     if (accessibility.highContrast) {
@@ -31,8 +32,10 @@ export const MapaDoCorpo: React.FC = () => {
   };
 
   const getOrganOpacity = (organId: string) => {
-    // Use exponential organ health calculation for opacity
-    const organHealth = Math.max(20, Math.min(100, meters.organHealth?.[organId] || 80));
+    // Use evidence-based organ health calculation for opacity
+    const organHealthData = calculateOrganHealth(organId, selectedHabits);
+    const organHealth = Math.max(20, Math.min(100, organHealthData.health));
+    return organHealth / 100;
   };
 
   return (
