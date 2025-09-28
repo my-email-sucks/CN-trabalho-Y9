@@ -14,7 +14,8 @@ export const MapaDoCorpo: React.FC = () => {
     // Calculate specific organ health based on habits affecting it
     let organHealth = 100;
     
-    Object.entries(selectedHabits).forEach(([habitId, { level }]) => {
+    Object.entries(selectedHabits).forEach(([habitId, habitData]) => {
+      const level = habitData?.level || 0;
       const habit = habitsData.habits.find(h => h.id === habitId);
       if (!habit || level === 0) return;
       
@@ -59,7 +60,8 @@ export const MapaDoCorpo: React.FC = () => {
     // Calculate opacity based on organ health for more dramatic visual feedback
     let organHealth = 100;
     
-    Object.entries(selectedHabits).forEach(([habitId, { level }]) => {
+    Object.entries(selectedHabits).forEach(([habitId, habitData]) => {
+      const level = habitData?.level || 0;
       const habit = habitsData.habits.find(h => h.id === habitId);
       if (!habit || level === 0) return;
       

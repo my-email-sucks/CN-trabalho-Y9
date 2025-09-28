@@ -16,7 +16,8 @@ export const VistaDoÓrgão: React.FC = () => {
   let organHealth = 100;
   const affectingHabits: Array<{habit: any, impact: number, level: number}> = [];
   
-  Object.entries(selectedHabits).forEach(([habitId, { level }]) => {
+  Object.entries(selectedHabits).forEach(([habitId, habitData]) => {
+    const level = habitData?.level || 0;
     const habit = habitsData.habits.find(h => h.id === habitId);
     if (!habit || level === 0) return;
     

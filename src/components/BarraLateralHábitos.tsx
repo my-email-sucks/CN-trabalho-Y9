@@ -9,7 +9,7 @@ interface HabitControlProps {
 
 const HabitControl: React.FC<HabitControlProps> = ({ habit }) => {
   const { selectedHabits, setHabitLevel } = useAtlasStore();
-  const currentLevel = selectedHabits[habit.id] ?? 0;
+  const currentLevel = selectedHabits[habit.id]?.level ?? 0;
 
   const handleLevelChange = (level: number) => {
     // Add validation to prevent invalid states
@@ -130,20 +130,19 @@ export const BarraLateralHábitos: React.FC = () => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-y-auto max-h-screen">
       <div className="p-4 border-b border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-900">Quais são os teus bons hábitos?</h2>
+        <h2 className="text-xl font-semibold text-gray-900">Os teus hábitos</h2>
         <p className="text-sm text-gray-600 mt-1">
           Ajusta os controlos para ver o impacto
         </p>
       </div>
 
       <div className="p-4 space-y-6">
-        {/* Bad Habits Section */}
+        {/* Harmful Habits Section */}
         <div>
-          <div className="space-y-2 mb-4">
-            {['Fumar', 'Beber álcool', 'Consumo de drogas', 'Pornografia', 'Dependência de videojogos', 'Sedentarismo', 'Dieta ultraprocessada'].map((habit, index) => (
-              <div key={index} className="text-sm text-gray-700">{habit}</div>
-            ))}
-          </div>
+          <h3 className="text-lg font-semibold text-red-700 mb-3 flex items-center">
+            <span className="w-3 h-3 bg-red-500 rounded-full mr-2"></span>
+            Hábitos Prejudiciais
+          </h3>
           <div className="space-y-3">
             {badHabits.map((habit) => (
               <HabitControl key={habit.id} habit={habit} />
@@ -151,8 +150,12 @@ export const BarraLateralHábitos: React.FC = () => {
           </div>
         </div>
 
-        {/* Good Habits Section */}
+        {/* Beneficial Habits Section */}
         <div>
+          <h3 className="text-lg font-semibold text-green-700 mb-3 flex items-center">
+            <span className="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
+            Hábitos Benéficos
+          </h3>
           <div className="space-y-3">
             {goodHabits.map((habit) => (
               <HabitControl key={habit.id} habit={habit} />
