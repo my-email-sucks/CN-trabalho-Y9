@@ -15,172 +15,172 @@ import habitsData from '../data/habits.json';
 const HABIT_IMPACT_MATRIX = {
   // SLEEP - Exponential for health/mental, linear for quality of life, minimal for fitness
   sleep_consistency: {
-    generalHealth: { type: 'exponential', multiplier: 4.2, curve: 2.0 },
-    mentalHealth: { type: 'exponential', multiplier: 4.5, curve: 2.1 },
-    qualityOfLife: { type: 'linear', multiplier: 2.8 },
-    physicalFitness: { type: 'minimal', multiplier: 0.8 },
-    happiness: { type: 'exponential', multiplier: 3.8, curve: 1.8 },
-    lifeExpectancy: { type: 'exponential', multiplier: 3.5, curve: 1.9 }
+    generalHealth: { type: 'exponential', multiplier: 15, curve: 1.6 },
+    mentalHealth: { type: 'exponential', multiplier: 18, curve: 1.7 },
+    qualityOfLife: { type: 'linear', multiplier: 12 },
+    physicalFitness: { type: 'minimal', multiplier: 5 },
+    happiness: { type: 'exponential', multiplier: 14, curve: 1.5 },
+    lifeExpectancy: { type: 'exponential', multiplier: 12, curve: 1.6 }
   },
 
   // EXERCISE - Exponential for fitness/health, linear for mental
   exercise: {
-    generalHealth: { type: 'exponential', multiplier: 4.0, curve: 1.9 },
-    physicalFitness: { type: 'exponential', multiplier: 5.0, curve: 2.2 },
-    mentalHealth: { type: 'linear', multiplier: 3.2 },
-    qualityOfLife: { type: 'linear', multiplier: 3.5 },
-    happiness: { type: 'linear', multiplier: 3.0 },
-    lifeExpectancy: { type: 'exponential', multiplier: 4.2, curve: 2.0 }
+    generalHealth: { type: 'exponential', multiplier: 16, curve: 1.5 },
+    physicalFitness: { type: 'exponential', multiplier: 20, curve: 1.8 },
+    mentalHealth: { type: 'linear', multiplier: 12 },
+    qualityOfLife: { type: 'linear', multiplier: 14 },
+    happiness: { type: 'linear', multiplier: 10 },
+    lifeExpectancy: { type: 'exponential', multiplier: 15, curve: 1.6 }
   },
 
   // RECREATIONAL DRUGS - Exponential negative for health, exponential positive for short-term happiness
   drugs: {
-    generalHealth: { type: 'exponential', multiplier: -5.0, curve: 2.3 },
-    happiness: { type: 'exponential', multiplier: 2.5, curve: 1.5 }, // Short-term boost
-    mentalHealth: { type: 'linear', multiplier: -3.8 },
-    physicalFitness: { type: 'minimal', multiplier: -0.5 },
-    qualityOfLife: { type: 'linear', multiplier: -4.2 },
-    lifeExpectancy: { type: 'exponential', multiplier: -4.8, curve: 2.1 }
+    generalHealth: { type: 'exponential', multiplier: -30, curve: 2.0 }, // Exception - can be higher
+    happiness: { type: 'exponential', multiplier: 8, curve: 1.4 }, // Short-term boost
+    mentalHealth: { type: 'linear', multiplier: -15 },
+    physicalFitness: { type: 'minimal', multiplier: -3 },
+    qualityOfLife: { type: 'linear', multiplier: -18 },
+    lifeExpectancy: { type: 'exponential', multiplier: -25, curve: 1.8 }
   },
 
   // SMOKING - Exponential negative across most metrics
   smoking: {
-    generalHealth: { type: 'exponential', multiplier: -4.8, curve: 2.2 },
-    physicalFitness: { type: 'exponential', multiplier: -3.5, curve: 1.8 },
-    mentalHealth: { type: 'linear', multiplier: -2.2 },
-    qualityOfLife: { type: 'linear', multiplier: -3.0 },
-    happiness: { type: 'linear', multiplier: -1.8 },
-    lifeExpectancy: { type: 'exponential', multiplier: -5.2, curve: 2.3 }
+    generalHealth: { type: 'exponential', multiplier: -18, curve: 1.7 },
+    physicalFitness: { type: 'exponential', multiplier: -15, curve: 1.5 },
+    mentalHealth: { type: 'linear', multiplier: -8 },
+    qualityOfLife: { type: 'linear', multiplier: -12 },
+    happiness: { type: 'linear', multiplier: -6 },
+    lifeExpectancy: { type: 'exponential', multiplier: -20, curve: 1.8 }
   },
 
   // ALCOHOL - Exponential for liver/health, moderate for mental
   alcohol: {
-    generalHealth: { type: 'exponential', multiplier: -4.2, curve: 2.0 },
-    mentalHealth: { type: 'linear', multiplier: -2.8 },
-    happiness: { type: 'linear', multiplier: 1.2 }, // Short-term social boost
-    physicalFitness: { type: 'linear', multiplier: -2.0 },
-    qualityOfLife: { type: 'linear', multiplier: -2.5 },
-    lifeExpectancy: { type: 'exponential', multiplier: -3.8, curve: 1.9 }
+    generalHealth: { type: 'exponential', multiplier: -16, curve: 1.6 },
+    mentalHealth: { type: 'linear', multiplier: -10 },
+    happiness: { type: 'linear', multiplier: 5 }, // Short-term social boost
+    physicalFitness: { type: 'linear', multiplier: -8 },
+    qualityOfLife: { type: 'linear', multiplier: -9 },
+    lifeExpectancy: { type: 'exponential', multiplier: -14, curve: 1.5 }
   },
 
   // CHRONIC STRESS - Exponential negative across all metrics
   chronic_stress: {
-    generalHealth: { type: 'exponential', multiplier: -4.5, curve: 2.1 },
-    mentalHealth: { type: 'exponential', multiplier: -5.0, curve: 2.2 },
-    physicalFitness: { type: 'linear', multiplier: -2.5 },
-    qualityOfLife: { type: 'exponential', multiplier: -4.0, curve: 1.9 },
-    happiness: { type: 'exponential', multiplier: -4.8, curve: 2.0 },
-    lifeExpectancy: { type: 'exponential', multiplier: -3.5, curve: 1.8 }
+    generalHealth: { type: 'exponential', multiplier: -17, curve: 1.7 },
+    mentalHealth: { type: 'exponential', multiplier: -20, curve: 1.8 },
+    physicalFitness: { type: 'linear', multiplier: -9 },
+    qualityOfLife: { type: 'exponential', multiplier: -16, curve: 1.6 },
+    happiness: { type: 'exponential', multiplier: -18, curve: 1.7 },
+    lifeExpectancy: { type: 'exponential', multiplier: -13, curve: 1.5 }
   },
 
   // HEALTHY DIET - Linear to exponential across metrics
   healthy_diet: {
-    generalHealth: { type: 'exponential', multiplier: 3.8, curve: 1.7 },
-    physicalFitness: { type: 'linear', multiplier: 2.8 },
-    mentalHealth: { type: 'linear', multiplier: 2.2 },
-    qualityOfLife: { type: 'linear', multiplier: 3.0 },
-    happiness: { type: 'linear', multiplier: 2.0 },
-    lifeExpectancy: { type: 'linear', multiplier: 3.2 }
+    generalHealth: { type: 'exponential', multiplier: 14, curve: 1.4 },
+    physicalFitness: { type: 'linear', multiplier: 11 },
+    mentalHealth: { type: 'linear', multiplier: 8 },
+    qualityOfLife: { type: 'linear', multiplier: 12 },
+    happiness: { type: 'linear', multiplier: 7 },
+    lifeExpectancy: { type: 'linear', multiplier: 10 }
   },
 
   // PROCESSED DIET - Exponential negative for health, linear for others
   processed_diet: {
-    generalHealth: { type: 'exponential', multiplier: -3.8, curve: 1.9 },
-    physicalFitness: { type: 'linear', multiplier: -2.5 },
-    mentalHealth: { type: 'linear', multiplier: -1.8 },
-    qualityOfLife: { type: 'linear', multiplier: -2.2 },
-    happiness: { type: 'minimal', multiplier: -0.5 },
-    lifeExpectancy: { type: 'linear', multiplier: -2.8 }
+    generalHealth: { type: 'exponential', multiplier: -14, curve: 1.5 },
+    physicalFitness: { type: 'linear', multiplier: -9 },
+    mentalHealth: { type: 'linear', multiplier: -6 },
+    qualityOfLife: { type: 'linear', multiplier: -8 },
+    happiness: { type: 'minimal', multiplier: -3 },
+    lifeExpectancy: { type: 'linear', multiplier: -10 }
   },
 
   // SOCIAL CONNECTION - Exponential for mental health, linear for others
   social_connection: {
-    mentalHealth: { type: 'exponential', multiplier: 4.0, curve: 1.9 },
-    happiness: { type: 'exponential', multiplier: 4.2, curve: 2.0 },
-    generalHealth: { type: 'linear', multiplier: 2.5 },
-    qualityOfLife: { type: 'exponential', multiplier: 3.8, curve: 1.8 },
-    physicalFitness: { type: 'minimal', multiplier: 0.3 },
-    lifeExpectancy: { type: 'linear', multiplier: 3.0 }
+    mentalHealth: { type: 'exponential', multiplier: 16, curve: 1.6 },
+    happiness: { type: 'exponential', multiplier: 17, curve: 1.7 },
+    generalHealth: { type: 'linear', multiplier: 9 },
+    qualityOfLife: { type: 'exponential', multiplier: 15, curve: 1.5 },
+    physicalFitness: { type: 'minimal', multiplier: 3 },
+    lifeExpectancy: { type: 'linear', multiplier: 11 }
   },
 
   // SOCIAL ISOLATION - Exponential negative for mental health
   social_isolation: {
-    mentalHealth: { type: 'exponential', multiplier: -3.8, curve: 1.9 },
-    happiness: { type: 'exponential', multiplier: -4.0, curve: 2.0 },
-    generalHealth: { type: 'linear', multiplier: -2.0 },
-    qualityOfLife: { type: 'exponential', multiplier: -3.5, curve: 1.8 },
-    physicalFitness: { type: 'minimal', multiplier: -0.2 },
-    lifeExpectancy: { type: 'linear', multiplier: -2.2 }
+    mentalHealth: { type: 'exponential', multiplier: -15, curve: 1.6 },
+    happiness: { type: 'exponential', multiplier: -16, curve: 1.7 },
+    generalHealth: { type: 'linear', multiplier: -7 },
+    qualityOfLife: { type: 'exponential', multiplier: -14, curve: 1.5 },
+    physicalFitness: { type: 'minimal', multiplier: -2 },
+    lifeExpectancy: { type: 'linear', multiplier: -8 }
   },
 
   // SEDENTARY - Linear to exponential negative for fitness/health
   sedentary: {
-    physicalFitness: { type: 'exponential', multiplier: -4.0, curve: 2.0 },
-    generalHealth: { type: 'exponential', multiplier: -3.2, curve: 1.8 },
-    mentalHealth: { type: 'linear', multiplier: -2.0 },
-    qualityOfLife: { type: 'linear', multiplier: -2.5 },
-    happiness: { type: 'linear', multiplier: -1.8 },
-    lifeExpectancy: { type: 'linear', multiplier: -2.8 }
+    physicalFitness: { type: 'exponential', multiplier: -16, curve: 1.6 },
+    generalHealth: { type: 'exponential', multiplier: -13, curve: 1.5 },
+    mentalHealth: { type: 'linear', multiplier: -7 },
+    qualityOfLife: { type: 'linear', multiplier: -9 },
+    happiness: { type: 'linear', multiplier: -6 },
+    lifeExpectancy: { type: 'linear', multiplier: -10 }
   },
 
   // MEDITATION - Exponential for mental health, linear for others
   meditation: {
-    mentalHealth: { type: 'exponential', multiplier: 3.5, curve: 1.8 },
-    happiness: { type: 'linear', multiplier: 3.0 },
-    generalHealth: { type: 'linear', multiplier: 2.0 },
-    qualityOfLife: { type: 'linear', multiplier: 2.8 },
-    physicalFitness: { type: 'minimal', multiplier: 0.5 },
-    lifeExpectancy: { type: 'linear', multiplier: 1.8 }
+    mentalHealth: { type: 'exponential', multiplier: 14, curve: 1.5 },
+    happiness: { type: 'linear', multiplier: 11 },
+    generalHealth: { type: 'linear', multiplier: 7 },
+    qualityOfLife: { type: 'linear', multiplier: 10 },
+    physicalFitness: { type: 'minimal', multiplier: 3 },
+    lifeExpectancy: { type: 'linear', multiplier: 6 }
   },
 
   // READING - Moderate benefits to mental well-being, minimal effect on health
   reading: {
-    mentalHealth: { type: 'linear', multiplier: 2.2 },
-    happiness: { type: 'linear', multiplier: 1.8 },
-    generalHealth: { type: 'minimal', multiplier: 0.2 }, // Minimal, not negative
-    qualityOfLife: { type: 'linear', multiplier: 2.0 },
-    physicalFitness: { type: 'minimal', multiplier: 0.0 },
-    lifeExpectancy: { type: 'minimal', multiplier: 0.8 }
+    mentalHealth: { type: 'linear', multiplier: 8 },
+    happiness: { type: 'linear', multiplier: 6 },
+    generalHealth: { type: 'minimal', multiplier: 2 }, // Minimal, not negative
+    qualityOfLife: { type: 'linear', multiplier: 7 },
+    physicalFitness: { type: 'minimal', multiplier: 0 },
+    lifeExpectancy: { type: 'minimal', multiplier: 3 }
   },
 
   // JOURNALING - Targeted mental health benefits
   journaling: {
-    mentalHealth: { type: 'linear', multiplier: 1.8 },
-    happiness: { type: 'linear', multiplier: 1.5 },
-    generalHealth: { type: 'minimal', multiplier: 0.1 },
-    qualityOfLife: { type: 'linear', multiplier: 1.6 },
-    physicalFitness: { type: 'minimal', multiplier: 0.0 },
-    lifeExpectancy: { type: 'minimal', multiplier: 0.3 }
+    mentalHealth: { type: 'linear', multiplier: 6 },
+    happiness: { type: 'linear', multiplier: 5 },
+    generalHealth: { type: 'minimal', multiplier: 1 },
+    qualityOfLife: { type: 'linear', multiplier: 5 },
+    physicalFitness: { type: 'minimal', multiplier: 0 },
+    lifeExpectancy: { type: 'minimal', multiplier: 2 }
   },
 
   // HYDRATION - Linear benefits across most metrics
   hydration: {
-    generalHealth: { type: 'linear', multiplier: 2.5 },
-    physicalFitness: { type: 'linear', multiplier: 2.0 },
-    mentalHealth: { type: 'linear', multiplier: 1.5 },
-    qualityOfLife: { type: 'linear', multiplier: 1.8 },
-    happiness: { type: 'minimal', multiplier: 0.8 },
-    lifeExpectancy: { type: 'linear', multiplier: 1.2 }
+    generalHealth: { type: 'linear', multiplier: 9 },
+    physicalFitness: { type: 'linear', multiplier: 7 },
+    mentalHealth: { type: 'linear', multiplier: 5 },
+    qualityOfLife: { type: 'linear', multiplier: 6 },
+    happiness: { type: 'minimal', multiplier: 3 },
+    lifeExpectancy: { type: 'linear', multiplier: 4 }
   },
 
   // GAMING - Moderate negative effects, some positive for happiness
   gaming: {
-    mentalHealth: { type: 'linear', multiplier: -1.8 },
-    physicalFitness: { type: 'linear', multiplier: -1.5 },
-    generalHealth: { type: 'linear', multiplier: -1.2 },
-    happiness: { type: 'linear', multiplier: 1.0 }, // Short-term entertainment
-    qualityOfLife: { type: 'linear', multiplier: -1.5 },
-    lifeExpectancy: { type: 'minimal', multiplier: -0.5 }
+    mentalHealth: { type: 'linear', multiplier: -6 },
+    physicalFitness: { type: 'linear', multiplier: -5 },
+    generalHealth: { type: 'linear', multiplier: -4 },
+    happiness: { type: 'linear', multiplier: 4 }, // Short-term entertainment
+    qualityOfLife: { type: 'linear', multiplier: -5 },
+    lifeExpectancy: { type: 'minimal', multiplier: -2 }
   },
 
   // PORNOGRAPHY - Targeted negative effects on mental health
   pornography: {
-    mentalHealth: { type: 'linear', multiplier: -2.5 },
-    happiness: { type: 'linear', multiplier: -1.8 },
-    generalHealth: { type: 'minimal', multiplier: -0.3 },
-    qualityOfLife: { type: 'linear', multiplier: -2.0 },
-    physicalFitness: { type: 'minimal', multiplier: 0.0 },
-    lifeExpectancy: { type: 'minimal', multiplier: -0.2 }
+    mentalHealth: { type: 'linear', multiplier: -9 },
+    happiness: { type: 'linear', multiplier: -6 },
+    generalHealth: { type: 'minimal', multiplier: -2 },
+    qualityOfLife: { type: 'linear', multiplier: -7 },
+    physicalFitness: { type: 'minimal', multiplier: 0 },
+    lifeExpectancy: { type: 'minimal', multiplier: -1 }
   }
 };
 
