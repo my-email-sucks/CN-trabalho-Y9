@@ -77,6 +77,10 @@ export const PerfilUtilizador: React.FC = () => {
   const healthCategory = getHealthCategory();
   const recommendations = getTopRecommendations();
 
+  // Get exponential factors for enhanced display
+  const exponentialFactors = meters.exponentialFactors || { positive: [], negative: [] };
+  const prioritizedRecommendations = meters.prioritizedRecommendations || [];
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border">
       <div className="flex items-center space-x-3 mb-6">
@@ -159,30 +163,64 @@ export const PerfilUtilizador: React.FC = () => {
 
       {/* Top Recommendations */}
       <div>
-        <h4 className="font-semibold text-gray-900 mb-3">Recomendações Prioritárias</h4>
+        <h4 className="font-semibold text-gray-900 mb-3">Recomendações Exponenciais</h4>
         <div className="space-y-2">
-          {recommendations.map((rec, index) => (
+          {prioritizedRecommendations.slice(0, 3).map((rec, index) => (
             <div key={index} className={`p-3 rounded-lg text-sm ${
-              rec.priority === 'high' ? 'bg-red-50 text-red-800' :
-              rec.priority === 'medium' ? 'bg-blue-50 text-blue-800' :
+              rec.priority === 'critical' ? 'bg-red-50 text-red-800' :
+              rec.priority === 'high' ? 'bg-orange-50 text-orange-800' :
               'bg-gray-50 text-gray-800'
             }`}>
               <div className="flex items-center space-x-2">
-                {rec.type === 'reduce' ? (
-                  <TrendingDown className="w-4 h-4" />
-                ) : (
+                {rec.priority === 'critical' ? (
+                  <AlertCircle className="w-4 h-4" />
+                ) : rec.action.includes('Increase') || rec.action.includes('Improve') ? (
                   <TrendingUp className="w-4 h-4" />
+                ) : (
+                  <TrendingDown className="w-4 h-4" />
                 )}
-                <span className="font-medium">{rec.text}</span>
+                <div className="flex-1">
+                  <span className="font-medium">{rec.action}</span>
+                  <p className="text-xs mt-1 opacity-75">{rec.expectedImpact}</p>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </div>
 
+      {/* Exponential Factors Display */}
+      {(exponentialFactors.positive.length > 0 || exponentialFactors.negative.length > 0) && (
+        <div className="mt-6">
+          <h4 className="font-semibold text-gray-900 mb-3">Fatores Exponenciais</h4>
+          
+          {exponentialFactors.negative.length > 0 && (
+            <div className="mb-3">
+              <h5 className="text-sm font-medium text-red-700 mb-2">⚠️ Impactos Críticos</h5>
+              {exponentialFactors.negative.slice(0, 2).map((factor, index) => (
+                <div key={index} className="text-xs text-red-600 bg-red-50 p-2 rounded mb-1">
+                  <strong>{factor.habit}</strong> - Impacto: {Math.round(factor.impact)}%
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {exponentialFactors.positive.length > 0 && (
+            <div>
+              <h5 className="text-sm font-medium text-green-700 mb-2">✅ Benefícios Exponenciais</h5>
+              {exponentialFactors.positive.slice(0, 2).map((factor, index) => (
+                <div key={index} className="text-xs text-green-600 bg-green-50 p-2 rounded mb-1">
+                  <strong>{factor.habit}</strong> - Benefício: {Math.round(factor.impact)}%
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Disclaimer */}
       <div className="mt-6 text-xs text-gray-500 bg-gray-50 p-3 rounded">
-        <p>Este perfil é baseado nos hábitos selecionados e destina-se apenas a fins educativos. Consulta um profissional de saúde para orientação personalizada.</p>
+        <p>Este perfil usa cálculos exponenciais baseados em investigação médica e destina-se apenas a fins educativos. Alguns hábitos têm impactos desproporcionais na saúde. Consulta um profissional de saúde para orientação personalizada.</p>
       </div>
     </div>
   );
