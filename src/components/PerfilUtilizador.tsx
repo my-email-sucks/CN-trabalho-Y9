@@ -4,7 +4,7 @@ import { useAtlasStore } from '../store/useAtlasStore';
 import { calculateOrganHealth } from '../utils/organHealthCalculator';
 import organsData from '../data/organs.json';
 
-export const VistaDoÓrgão: React.FC = () => {
+export const PerfilUtilizador: React.FC = () => {
   const { focusOrganId, setFocusOrgan, meters, selectedHabits } = useAtlasStore();
 
   if (!focusOrganId) return null;
