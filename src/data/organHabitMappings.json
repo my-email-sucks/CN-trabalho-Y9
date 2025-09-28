@@ -1,0 +1,312 @@
+{
+  "organMappings": {
+    "lungs": {
+      "topHarmful": [
+        {
+          "habitId": "smoking",
+          "impact": 0.85,
+          "mechanism": "Direct tar deposition, cilia destruction, chronic inflammation",
+          "evidenceLevel": "strong"
+        },
+        {
+          "habitId": "sedentary",
+          "impact": 0.25,
+          "mechanism": "Reduced lung capacity, poor circulation",
+          "evidenceLevel": "moderate"
+        },
+        {
+          "habitId": "chronic_stress",
+          "impact": 0.20,
+          "mechanism": "Immune suppression, increased infection risk",
+          "evidenceLevel": "moderate"
+        }
+      ],
+      "topBeneficial": [
+        {
+          "habitId": "exercise",
+          "impact": 0.70,
+          "mechanism": "Increased lung capacity, improved oxygen exchange",
+          "evidenceLevel": "strong"
+        },
+        {
+          "habitId": "healthy_diet",
+          "impact": 0.30,
+          "mechanism": "Anti-inflammatory nutrients, antioxidant protection",
+          "evidenceLevel": "moderate"
+        },
+        {
+          "habitId": "hydration",
+          "impact": 0.25,
+          "mechanism": "Maintains mucus membrane health, aids clearance",
+          "evidenceLevel": "moderate"
+        }
+      ],
+      "baselineHealth": 85,
+      "riskFactors": ["respiratory_infection", "copd", "lung_cancer"]
+    },
+    "heart": {
+      "topHarmful": [
+        {
+          "habitId": "smoking",
+          "impact": 0.75,
+          "mechanism": "Atherosclerosis acceleration, blood pressure elevation",
+          "evidenceLevel": "strong"
+        },
+        {
+          "habitId": "sedentary",
+          "impact": 0.65,
+          "mechanism": "Cardiovascular deconditioning, metabolic dysfunction",
+          "evidenceLevel": "strong"
+        },
+        {
+          "habitId": "chronic_stress",
+          "impact": 0.55,
+          "mechanism": "Cortisol elevation, hypertension, inflammation",
+          "evidenceLevel": "strong"
+        }
+      ],
+      "topBeneficial": [
+        {
+          "habitId": "exercise",
+          "impact": 0.80,
+          "mechanism": "Strengthens heart muscle, improves circulation, lowers BP",
+          "evidenceLevel": "strong"
+        },
+        {
+          "habitId": "healthy_diet",
+          "impact": 0.60,
+          "mechanism": "Reduces cholesterol, anti-inflammatory effects",
+          "evidenceLevel": "strong"
+        },
+        {
+          "habitId": "meditation",
+          "impact": 0.45,
+          "mechanism": "Activates parasympathetic system, reduces stress hormones",
+          "evidenceLevel": "moderate"
+        }
+      ],
+      "baselineHealth": 80,
+      "riskFactors": ["heart_attack", "stroke", "hypertension"]
+    },
+    "brain": {
+      "topHarmful": [
+        {
+          "habitId": "alcohol",
+          "impact": 0.70,
+          "mechanism": "Neurotoxicity, memory impairment, brain shrinkage",
+          "evidenceLevel": "strong"
+        },
+        {
+          "habitId": "drugs",
+          "impact": 0.85,
+          "mechanism": "Dopamine system disruption, neurotoxic damage",
+          "evidenceLevel": "strong"
+        },
+        {
+          "habitId": "chronic_stress",
+          "impact": 0.60,
+          "mechanism": "Cortisol-induced neuroinflammation, hippocampal damage",
+          "evidenceLevel": "strong"
+        }
+      ],
+      "topBeneficial": [
+        {
+          "habitId": "exercise",
+          "impact": 0.75,
+          "mechanism": "BDNF increase, neurogenesis, improved blood flow",
+          "evidenceLevel": "strong"
+        },
+        {
+          "habitId": "meditation",
+          "impact": 0.65,
+          "mechanism": "Neuroplasticity enhancement, stress reduction",
+          "evidenceLevel": "strong"
+        },
+        {
+          "habitId": "reading",
+          "impact": 0.50,
+          "mechanism": "Cognitive reserve building, neural pathway strengthening",
+          "evidenceLevel": "moderate"
+        }
+      ],
+      "baselineHealth": 85,
+      "riskFactors": ["dementia", "depression", "cognitive_decline"]
+    },
+    "liver": {
+      "topHarmful": [
+        {
+          "habitId": "alcohol",
+          "impact": 0.90,
+          "mechanism": "Direct hepatotoxicity, fatty liver, cirrhosis progression",
+          "evidenceLevel": "strong"
+        },
+        {
+          "habitId": "processed_diet",
+          "impact": 0.55,
+          "mechanism": "Non-alcoholic fatty liver, insulin resistance",
+          "evidenceLevel": "strong"
+        },
+        {
+          "habitId": "sedentary",
+          "impact": 0.40,
+          "mechanism": "Metabolic dysfunction, fat accumulation",
+          "evidenceLevel": "moderate"
+        }
+      ],
+      "topBeneficial": [
+        {
+          "habitId": "healthy_diet",
+          "impact": 0.70,
+          "mechanism": "Antioxidant support, reduced inflammation",
+          "evidenceLevel": "strong"
+        },
+        {
+          "habitId": "exercise",
+          "impact": 0.60,
+          "mechanism": "Improved fat metabolism, insulin sensitivity",
+          "evidenceLevel": "strong"
+        },
+        {
+          "habitId": "hydration",
+          "impact": 0.35,
+          "mechanism": "Supports detoxification processes",
+          "evidenceLevel": "moderate"
+        }
+      ],
+      "baselineHealth": 80,
+      "riskFactors": ["fatty_liver", "cirrhosis", "liver_cancer"]
+    },
+    "kidneys": {
+      "topHarmful": [
+        {
+          "habitId": "drugs",
+          "impact": 0.75,
+          "mechanism": "Direct nephrotoxicity, filtration damage",
+          "evidenceLevel": "strong"
+        },
+        {
+          "habitId": "chronic_stress",
+          "impact": 0.45,
+          "mechanism": "Hypertension-induced kidney damage",
+          "evidenceLevel": "moderate"
+        },
+        {
+          "habitId": "processed_diet",
+          "impact": 0.40,
+          "mechanism": "High sodium load, metabolic stress",
+          "evidenceLevel": "moderate"
+        }
+      ],
+      "topBeneficial": [
+        {
+          "habitId": "hydration",
+          "impact": 0.80,
+          "mechanism": "Optimal filtration, waste removal, prevents stones",
+          "evidenceLevel": "strong"
+        },
+        {
+          "habitId": "healthy_diet",
+          "impact": 0.50,
+          "mechanism": "Reduced sodium, balanced electrolytes",
+          "evidenceLevel": "moderate"
+        },
+        {
+          "habitId": "exercise",
+          "impact": 0.35,
+          "mechanism": "Blood pressure control, circulation improvement",
+          "evidenceLevel": "moderate"
+        }
+      ],
+      "baselineHealth": 85,
+      "riskFactors": ["kidney_disease", "kidney_stones", "hypertension"]
+    },
+    "gut": {
+      "topHarmful": [
+        {
+          "habitId": "processed_diet",
+          "impact": 0.80,
+          "mechanism": "Microbiome disruption, intestinal inflammation",
+          "evidenceLevel": "strong"
+        },
+        {
+          "habitId": "chronic_stress",
+          "impact": 0.60,
+          "mechanism": "Gut-brain axis disruption, leaky gut syndrome",
+          "evidenceLevel": "strong"
+        },
+        {
+          "habitId": "alcohol",
+          "impact": 0.45,
+          "mechanism": "Intestinal barrier damage, dysbiosis",
+          "evidenceLevel": "moderate"
+        }
+      ],
+      "topBeneficial": [
+        {
+          "habitId": "healthy_diet",
+          "impact": 0.85,
+          "mechanism": "Fiber feeds beneficial bacteria, reduces inflammation",
+          "evidenceLevel": "strong"
+        },
+        {
+          "habitId": "exercise",
+          "impact": 0.50,
+          "mechanism": "Improves motility, increases microbiome diversity",
+          "evidenceLevel": "moderate"
+        },
+        {
+          "habitId": "meditation",
+          "impact": 0.40,
+          "mechanism": "Stress reduction improves gut-brain communication",
+          "evidenceLevel": "moderate"
+        }
+      ],
+      "baselineHealth": 75,
+      "riskFactors": ["ibs", "inflammatory_bowel", "digestive_issues"]
+    },
+    "skin": {
+      "topHarmful": [
+        {
+          "habitId": "smoking",
+          "impact": 0.70,
+          "mechanism": "Collagen breakdown, premature aging, poor circulation",
+          "evidenceLevel": "strong"
+        },
+        {
+          "habitId": "chronic_stress",
+          "impact": 0.50,
+          "mechanism": "Cortisol-induced inflammation, delayed healing",
+          "evidenceLevel": "moderate"
+        },
+        {
+          "habitId": "processed_diet",
+          "impact": 0.35,
+          "mechanism": "Advanced glycation end products, inflammation",
+          "evidenceLevel": "moderate"
+        }
+      ],
+      "topBeneficial": [
+        {
+          "habitId": "hydration",
+          "impact": 0.70,
+          "mechanism": "Maintains elasticity, supports barrier function",
+          "evidenceLevel": "strong"
+        },
+        {
+          "habitId": "healthy_diet",
+          "impact": 0.55,
+          "mechanism": "Antioxidants protect against free radical damage",
+          "evidenceLevel": "moderate"
+        },
+        {
+          "habitId": "sleep_consistency",
+          "impact": 0.45,
+          "mechanism": "Cellular repair and regeneration during sleep",
+          "evidenceLevel": "moderate"
+        }
+      ],
+      "baselineHealth": 80,
+      "riskFactors": ["premature_aging", "skin_cancer", "dermatitis"]
+    }
+  }
+}

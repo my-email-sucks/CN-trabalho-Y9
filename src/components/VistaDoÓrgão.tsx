@@ -1,8 +1,8 @@
 import React from 'react';
 import { X, Info, Heart, AlertTriangle, CheckCircle, TrendingDown, TrendingUp } from 'lucide-react';
 import { useAtlasStore } from '../store/useAtlasStore';
+import { calculateOrganHealth } from '../utils/organHealthCalculator';
 import organsData from '../data/organs.json';
-import habitsData from '../data/habits.json';
 
 export const VistaDoÓrgão: React.FC = () => {
   const { focusOrganId, setFocusOrgan, meters, selectedHabits } = useAtlasStore();
@@ -12,38 +12,9 @@ export const VistaDoÓrgão: React.FC = () => {
   const organ = organsData.organs.find(o => o.id === focusOrganId);
   if (!organ) return null;
 
-  // Calculate specific organ health and get affecting habits
-  let organHealth = 100;
-  const affectingHabits: Array<{habit: any, impact: number, level: number}> = [];
-  
-  Object.entries(selectedHabits).forEach(([habitId, habitData]) => {
-    const level = habitData?.level || 0;
-    const habit = habitsData.habits.find(h => h.id === habitId);
-    if (!habit || level === 0) return;
-    
-    const affectsOrgan = habit.affects.includes(focusOrganId);
-    if (affectsOrgan) {
-      const intensityScalar = [0, 0.5, 0.8, 1.0][level];
-      const mechanism = habit.mechanisms.find(m => m.organ === focusOrganId);
-      
-      if (mechanism) {
-        const impact = mechanism.weight * intensityScalar * 100;
-        
-        if (habit.kind === 'bad') {
-          const multiplier = ['smoking', 'alcohol', 'drugs', 'pornography'].includes(habitId) ? 1.5 : 1.0;
-          const finalImpact = impact * multiplier;
-          organHealth -= finalImpact;
-          affectingHabits.push({ habit, impact: -finalImpact, level });
-        } else {
-          const finalImpact = impact * 0.8;
-          organHealth += finalImpact;
-          affectingHabits.push({ habit, impact: finalImpact, level });
-        }
-      }
-    }
-  });
-  
-  organHealth = Math.max(0, Math.min(100, organHealth));
+  // Use evidence-based organ health calculation
+  const organHealthData = calculateOrganHealth(focusOrganId, selectedHabits);
+  const { health: organHealth, affectingHabits, riskLevel, personalizedMessage } = organHealthData;
   const healthRatio = organHealth / 100;
   
   const getOrganStatus = () => {
@@ -56,31 +27,31 @@ export const VistaDoÓrgão: React.FC = () => {
   const organStatus = getOrganStatus();
 
   const getPersonalizedAdvice = () => {
-    const badHabits = affectingHabits.filter(h => h.impact < 0);
-    const goodHabits = affectingHabits.filter(h => h.impact > 0);
+    const badHabits = affectingHabits.filter(h => h.type === 'harmful');
+    const goodHabits = affectingHabits.filter(h => h.type === 'beneficial');
     
     let advice = [];
     
     if (badHabits.length > 0) {
       const worstHabit = badHabits.reduce((worst, current) => 
-        current.impact < worst.impact ? current : worst
+        Math.abs(current.impact) > Math.abs(worst.impact) ? current : worst
       );
       
       advice.push({
         type: 'warning',
-        text: `O teu ${worstHabit.habit.name.toLowerCase()} está a causar danos significativos a este órgão. Considera reduzir gradualmente este hábito.`,
+        text: `O teu ${worstHabit.habitName.toLowerCase()} está a causar danos significativos a este órgão. Considera reduzir gradualmente este hábito.`,
         icon: <AlertTriangle className="w-4 h-4 text-orange-500" />
       });
     }
     
     if (goodHabits.length > 0) {
       const bestHabit = goodHabits.reduce((best, current) => 
-        current.impact > best.impact ? current : best
+        Math.abs(current.impact) > Math.abs(best.impact) ? current : best
       );
       
       advice.push({
         type: 'success',
-        text: `O teu ${bestHabit.habit.name.toLowerCase()} está a ter um impacto positivo. Continua assim!`,
+        text: `O teu ${bestHabit.habitName.toLowerCase()} está a ter um impacto positivo. Continua assim!`,
         icon: <CheckCircle className="w-4 h-4 text-green-500" />
       });
     }
@@ -131,8 +102,8 @@ export const VistaDoÓrgão: React.FC = () => {
               ({Math.round(organHealth)}% de saúde)
             </span>
           </div>
-          <p className="text-sm text-gray-700 mt-2">
-            Com base nos teus hábitos atuais, este órgão encontra-se em estado {organStatus.status.toLowerCase()}.
+          <p className="text-sm text-gray-700 mt-3">
+            {personalizedMessage}
           </p>
         </div>
 
@@ -158,7 +129,7 @@ export const VistaDoÓrgão: React.FC = () => {
           <div className="mx-6 mt-4">
             <h4 className="font-semibold text-gray-900 mb-3">Hábitos que Afetam Este Órgão</h4>
             <div className="space-y-2">
-              {affectingHabits.map(({ habit, impact, level }, index) => (
+              {affectingHabits.map(({ habitName, impact, level, mechanism }, index) => (
                 <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                   <div className="flex items-center space-x-2">
                     {impact > 0 ? (
@@ -166,7 +137,10 @@ export const VistaDoÓrgão: React.FC = () => {
                     ) : (
                       <TrendingDown className="w-4 h-4 text-red-500" />
                     )}
-                    <span className="text-sm font-medium">{habit.name}</span>
+                    <div>
+                      <span className="text-sm font-medium">{habitName}</span>
+                      <p className="text-xs text-gray-500">{mechanism}</p>
+                    </div>
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-xs text-gray-500">
@@ -175,7 +149,7 @@ export const VistaDoÓrgão: React.FC = () => {
                     <span className={`text-xs font-medium ${
                       impact > 0 ? 'text-green-600' : 'text-red-600'
                     }`}>
-                      {impact > 0 ? '+' : ''}{Math.round(impact)}%
+                      {impact > 0 ? '+' : ''}{Math.round(Math.abs(impact))}%
                     </span>
                   </div>
                 </div>
@@ -219,11 +193,11 @@ export const VistaDoÓrgão: React.FC = () => {
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
             <h4 className="font-semibold text-blue-900 mb-2">Dicas de Recuperação</h4>
             <ul className="text-sm text-blue-800 space-y-1">
-              {organHealth < 80 && <li>• Reduz gradualmente os hábitos prejudiciais</li>}
+              {riskLevel === 'high' || riskLevel === 'critical' && <li>• Reduz gradualmente os hábitos prejudiciais</li>}
               {!selectedHabits['exercise']?.level && <li>• Aumenta a atividade física regular</li>}
               {!selectedHabits['healthy_diet']?.level && <li>• Mantém uma alimentação equilibrada</li>}
               {!selectedHabits['sleep_consistency']?.level && <li>• Garante um sono reparador</li>}
-              {organHealth < 60 && <li>• Procura apoio médico se necessário</li>}
+              {riskLevel === 'critical' && <li>• Procura apoio médico se necessário</li>}
               {selectedHabits['smoking']?.level > 0 && <li>• Considera programas de cessação tabágica</li>}
               {selectedHabits['alcohol']?.level > 2 && <li>• Reduz o consumo de álcool gradualmente</li>}
               {!selectedHabits['hydration']?.level && <li>• Mantém uma hidratação adequada</li>}

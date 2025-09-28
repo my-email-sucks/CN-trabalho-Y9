@@ -1,6 +1,6 @@
 import React, { useCallback, useRef } from 'react';
 import { useAtlasStore } from '../store/useAtlasStore';
-import habitsData from '../data/habits.json';
+import { calculateOrganHealth } from '../utils/organHealthCalculator';
 
 export const MapaDoCorpo: React.FC = () => {
   const { focusOrganId, setFocusOrgan, accessibility, meters, selectedHabits } = useAtlasStore();
@@ -11,34 +11,9 @@ export const MapaDoCorpo: React.FC = () => {
   }, [focusOrganId, setFocusOrgan]);
 
   const getOrganColor = (organId: string, baseColor: string, affectedColor: string) => {
-    // Calculate specific organ health based on habits affecting it
-    let organHealth = 100;
-    
-    Object.entries(selectedHabits).forEach(([habitId, habitData]) => {
-      const level = habitData?.level || 0;
-      const habit = habitsData.habits.find(h => h.id === habitId);
-      if (!habit || level === 0) return;
-      
-      const affectsOrgan = habit.affects.includes(organId);
-      if (affectsOrgan) {
-        const intensityScalar = [0, 0.5, 0.8, 1.0][level];
-        const mechanism = habit.mechanisms.find(m => m.organ === organId);
-        
-        if (mechanism) {
-          const impact = mechanism.weight * intensityScalar * 100;
-          
-          if (habit.kind === 'bad') {
-            // High-impact habits have more dramatic visual effects
-            const multiplier = ['smoking', 'alcohol', 'drugs', 'pornography'].includes(habitId) ? 1.8 : 1.2;
-            organHealth -= impact * multiplier;
-          } else {
-            organHealth += impact * 0.8;
-          }
-        }
-      }
-    });
-    
-    organHealth = Math.max(0, Math.min(100, organHealth));
+    // Use evidence-based organ health calculation
+    const organHealthData = calculateOrganHealth(organId, selectedHabits);
+    const organHealth = organHealthData.health;
     const healthRatio = organHealth / 100;
     
     if (accessibility.highContrast) {
@@ -57,33 +32,9 @@ export const MapaDoCorpo: React.FC = () => {
   };
 
   const getOrganOpacity = (organId: string) => {
-    // Calculate opacity based on organ health for more dramatic visual feedback
-    let organHealth = 100;
-    
-    Object.entries(selectedHabits).forEach(([habitId, habitData]) => {
-      const level = habitData?.level || 0;
-      const habit = habitsData.habits.find(h => h.id === habitId);
-      if (!habit || level === 0) return;
-      
-      const affectsOrgan = habit.affects.includes(organId);
-      if (affectsOrgan) {
-        const intensityScalar = [0, 0.5, 0.8, 1.0][level];
-        const mechanism = habit.mechanisms.find(m => m.organ === organId);
-        
-        if (mechanism) {
-          const impact = mechanism.weight * intensityScalar * 100;
-          
-          if (habit.kind === 'bad') {
-            const multiplier = ['smoking', 'alcohol', 'drugs', 'pornography'].includes(habitId) ? 1.5 : 1.0;
-            organHealth -= impact * multiplier;
-          } else {
-            organHealth += impact * 0.8;
-          }
-        }
-      }
-    });
-    
-    organHealth = Math.max(20, Math.min(100, organHealth));
+    // Use evidence-based organ health calculation for opacity
+    const organHealthData = calculateOrganHealth(organId, selectedHabits);
+    const organHealth = Math.max(20, Math.min(100, organHealthData.health));
     return organHealth / 100;
   };
 

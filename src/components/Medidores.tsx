@@ -122,39 +122,9 @@ export const Medidores: React.FC = () => {
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-semibold text-gray-900">Ver por dentro</h3>
-        <div className="text-sm text-gray-500">(Fígado)</div>
+        <div className="text-sm text-gray-500">Métricas de Saúde</div>
       </div>
       
-      {/* Liver Detail Section */}
-      <div className="mb-8 p-4 bg-orange-50 rounded-lg border border-orange-200">
-        <div className="flex items-center mb-3">
-          <div className="w-16 h-12 bg-orange-400 rounded mr-4"></div>
-          <div>
-            <h4 className="font-semibold text-gray-900">Esteatose</h4>
-            <p className="text-sm text-gray-600">Acumulação de gordura nas células hepáticas.</p>
-          </div>
-        </div>
-      </div>
-
-      {/* What Helps Section */}
-      <div className="mb-6">
-        <h4 className="font-semibold text-gray-900 mb-3">O que ajuda</h4>
-        <div className="space-y-2">
-          <div className="flex items-center text-sm text-gray-700">
-            <span className="w-4 h-4 bg-blue-100 rounded-full mr-3 flex items-center justify-center">
-              <span className="text-xs">2</span>
-            </span>
-            Exercício físico
-          </div>
-          <div className="flex items-center text-sm text-gray-700">
-            <span className="w-4 h-4 bg-blue-100 rounded-full mr-3 flex items-center justify-center">
-              <span className="text-xs">1</span>
-            </span>
-            Alimentação saudável
-          </div>
-        </div>
-      </div>
-
       {/* Primary Health Metrics */}
       <div className="grid grid-cols-2 gap-4 mb-6">
         <CircularMeter
