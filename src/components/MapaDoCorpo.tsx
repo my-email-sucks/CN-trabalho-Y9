@@ -33,7 +33,6 @@ export const MapaDoCorpo: React.FC = () => {
   const getOrganOpacity = (organId: string) => {
     // Use exponential organ health calculation for opacity
     const organHealth = Math.max(20, Math.min(100, meters.organHealth?.[organId] || 80));
-    return organHealth / 100;
   };
 
   return (
