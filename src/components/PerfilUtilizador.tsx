@@ -12,7 +12,8 @@ export const PerfilUtilizador: React.FC = () => {
     let totalBadImpact = 0;
     let totalGoodImpact = 0;
 
-    Object.entries(selectedHabits).forEach(([habitId, { level }]) => {
+    Object.entries(selectedHabits).forEach(([habitId, habitData]) => {
+      const level = habitData?.level || 0;
       const habit = habitsData.habits.find(h => h.id === habitId);
       if (!habit || level === 0) return;
 
@@ -58,7 +59,7 @@ export const PerfilUtilizador: React.FC = () => {
 
     // Recommend increasing best potential good habit
     const missingGoodHabits = habitsData.habits
-      .filter(h => h.kind === 'good' && (!selectedHabits[h.id] || selectedHabits[h.id].level === 0))
+      .filter(h => h.kind === 'good' && (!selectedHabits[h.id] || selectedHabits[h.id]?.level === 0))
       .slice(0, 2);
 
     missingGoodHabits.forEach(habit => {
