@@ -1,0 +1,102 @@
+{
+  "organs": [
+    {
+      "id": "lungs",
+      "name": "Pulmões",
+      "system": "Respiratório",
+      "svgId": "organ-lungs",
+      "weight": 0.18,
+      "metrics": ["oxygen_uptake", "cilia_health", "inflammation"],
+      "narration": {
+        "what_happens": "As partículas do fumo e poluentes irritam as vias aéreas, danificam os cílios responsáveis pela limpeza e causam inflamação crónica. Isto reduz a capacidade pulmonar e aumenta o risco de infeções.",
+        "what_helps": "Parar de fumar permite a recuperação dos cílios em poucas semanas. O exercício aeróbico fortalece a capacidade pulmonar e melhora a oxigenação dos tecidos."
+      },
+      "healthyColor": "#ff9999",
+      "affectedColor": "#cc3333"
+    },
+    {
+      "id": "heart",
+      "name": "Coração",
+      "system": "Cardiovascular",
+      "svgId": "organ-heart",
+      "weight": 0.20,
+      "metrics": ["blood_pressure", "rhythm", "arterial_health"],
+      "narration": {
+        "what_happens": "Hábitos como tabagismo e sedentarismo aumentam a pressão arterial, aceleram a aterosclerose e sobrecarregam o músculo cardíaco. O stress crónico eleva o cortisol, afetando o ritmo cardíaco.",
+        "what_helps": "O exercício regular fortalece o coração, baixa a pressão arterial e melhora a circulação. A meditação ativa o sistema parassimpático, promovendo a recuperação cardíaca."
+      },
+      "healthyColor": "#ff6b6b",
+      "affectedColor": "#cc1f1f"
+    },
+    {
+      "id": "brain",
+      "name": "Cérebro",
+      "system": "Nervoso",
+      "svgId": "organ-brain",
+      "weight": 0.22,
+      "metrics": ["cognitive_function", "mood", "neuroplasticity"],
+      "narration": {
+        "what_happens": "Substâncias como álcool e drogas alteram os neurotransmissores, afetando o humor e cognição. O stress crónico eleva o cortisol, causando neuroinflamação e prejudicando a memória.",
+        "what_helps": "A meditação, leitura e exercício promovem neuroplasticity e aumentam o BDNF (fator neurotrófico). O sono adequado permite a consolidação da memória e limpeza de toxinas."
+      },
+      "healthyColor": "#ffa8a8",
+      "affectedColor": "#cc4444"
+    },
+    {
+      "id": "liver",
+      "name": "Fígado",
+      "system": "Digestivo",
+      "svgId": "organ-liver",
+      "weight": 0.16,
+      "metrics": ["detoxification", "metabolism", "inflammation"],
+      "narration": {
+        "what_happens": "O álcool e alimentos ultraprocessados sobrecarregam o fígado, levando à acumulação de gordura (esteatose) e inflamação. Isto compromete a capacidade de desintoxicação e metabolismo.",
+        "what_helps": "Uma dieta rica em antioxidantes e fibras apoia a função hepática. O exercício melhora o metabolismo das gorduras e reduz a resistência à insulina."
+      },
+      "healthyColor": "#cc7a5c",
+      "affectedColor": "#994433"
+    },
+    {
+      "id": "kidneys",
+      "name": "Rins",
+      "system": "Urinário",
+      "svgId": "organ-kidneys",
+      "weight": 0.12,
+      "metrics": ["filtration", "blood_pressure_control", "electrolyte_balance"],
+      "narration": {
+        "what_happens": "A desidratação e algumas drogas podem danificar os néfrons, reduzindo a capacidade de filtração. A hipertensão força os rins e pode causar doença renal crónica.",
+        "what_helps": "A hidratação adequada mantém a função renal ótima. Uma dieta baixa em sódio e rica em potássio ajuda a controlar a pressão arterial e protege os rins."
+      },
+      "healthyColor": "#8B4513",
+      "affectedColor": "#654321"
+    },
+    {
+      "id": "gut",
+      "name": "Intestino",
+      "system": "Digestivo",
+      "svgId": "organ-gut",
+      "weight": 0.14,
+      "metrics": ["microbiome_diversity", "barrier_function", "inflammation"],
+      "narration": {
+        "what_happens": "Alimentos ultraprocessados e stress disrumpem o microbioma intestinal, causam permeabilidade intestinal ('leaky gut') e inflamação sistémica. Isto afeta a digestão e imunidade.",
+        "what_helps": "Alimentos ricos em fibra e probióticos nutrem as bactérias benéficas. O exercício regular melhora a motilidade intestinal e diversidade microbiana."
+      },
+      "healthyColor": "#DEB887",
+      "affectedColor": "#CD853F"
+    },
+    {
+      "id": "skin",
+      "name": "Pele",
+      "system": "Tegumentar",
+      "svgId": "organ-skin",
+      "weight": 0.08,
+      "metrics": ["hydration", "elasticity", "inflammation"],
+      "narration": {
+        "what_happens": "O tabagismo acelera o envelhecimento da pele, reduzindo o colagénio e elastina. O stress crónico e má hidratação causam inflamação e perda de elasticidade.",
+        "what_helps": "A hidratação adequada mantém a elasticidade da pele. Uma dieta rica em antioxidantes protege contra o envelhecimento precoce e reduz a inflamação."
+      },
+      "healthyColor": "#FDBCB4",
+      "affectedColor": "#E6967A"
+    }
+  ]
+}
