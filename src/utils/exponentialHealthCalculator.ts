@@ -1,100 +1,200 @@
 /**
- * EXPONENTIAL HEALTH ASSESSMENT SYSTEM
+ * REALISTIC HABIT IMPACT SYSTEM
  * 
- * This system implements exponential weighting for critical habits based on medical research.
- * Certain habits have disproportionate impacts on health outcomes and can override
- * multiple other factors - both positively and negatively.
- * 
- * Based on epidemiological studies and meta-analyses from:
- * - WHO Global Health Observatory data
- * - American Heart Association statistics
- * - National Institute of Health longitudinal studies
- * - European Journal of Preventive Cardiology research
+ * This system implements tiered impact levels for habits based on real-world effects.
+ * Each habit has varying effectiveness across different statistics:
+ * - EXPONENTIAL: Life-changing effects (sleep, exercise, major addictions)
+ * - LINEAR: Moderate, proportional effects (diet, social habits)
+ * - MINIMAL: Small or targeted effects (reading, journaling)
  */
 
 import { HabitLevels } from '../store/useAtlasStore';
 import habitsData from '../data/habits.json';
 
-// EXPONENTIAL IMPACT MULTIPLIERS based on medical research
-const EXPONENTIAL_MULTIPLIERS = {
-  // EXPONENTIALLY HARMFUL - These can override multiple positive habits
-  chronic_stress: -3.5,    // Cortisol affects all body systems exponentially
-  drugs: -4.0,             // Highest negative impact - affects multiple organs severely
-  alcohol: -3.2,           // Exponential liver damage, affects brain, heart
-  smoking: -3.8,           // Affects cardiovascular, respiratory, all systems
-  processed_diet: -2.8,    // Metabolic syndrome, inflammation cascade
-  
-  // EXPONENTIALLY BENEFICIAL - These can counteract multiple negative habits
-  exercise: 3.5,           // Strongest positive multiplier - affects all systems
-  social_connection: 2.8,  // Longevity studies show exponential mental health benefits
-  healthy_diet: 3.0,       // Anti-inflammatory, affects all organ systems
-  sleep_consistency: 3.8,  // HIGHEST PRIORITY - affects recovery, immunity, cognition
-  hydration: 2.2,          // Foundation for all cellular processes
-  
-  // LINEAR IMPACT HABITS - Standard multipliers
-  sedentary: -1.5,
-  social_isolation: -1.8,
-  pornography: -1.4,
-  gaming: -1.2,
-  meditation: 1.8,
-  reading: 1.3,
-  journaling: 1.1
-};
+// TIERED IMPACT SYSTEM - Each habit affects different metrics differently
+const HABIT_IMPACT_MATRIX = {
+  // SLEEP - Exponential for health/mental, linear for quality of life, minimal for fitness
+  sleep_consistency: {
+    generalHealth: { type: 'exponential', multiplier: 4.2, curve: 2.0 },
+    mentalHealth: { type: 'exponential', multiplier: 4.5, curve: 2.1 },
+    qualityOfLife: { type: 'linear', multiplier: 2.8 },
+    physicalFitness: { type: 'minimal', multiplier: 0.8 },
+    happiness: { type: 'exponential', multiplier: 3.8, curve: 1.8 },
+    lifeExpectancy: { type: 'exponential', multiplier: 3.5, curve: 1.9 }
+  },
 
-// ORGAN-SPECIFIC VULNERABILITY FACTORS based on medical statistics
-const ORGAN_VULNERABILITIES = {
-  lungs: {
-    smoking: 4.5,        // 15x higher lung cancer risk
-    exercise: -2.8,      // Dramatically improves lung capacity
-    chronic_stress: 1.8  // Immune suppression increases infection risk
+  // EXERCISE - Exponential for fitness/health, linear for mental
+  exercise: {
+    generalHealth: { type: 'exponential', multiplier: 4.0, curve: 1.9 },
+    physicalFitness: { type: 'exponential', multiplier: 5.0, curve: 2.2 },
+    mentalHealth: { type: 'linear', multiplier: 3.2 },
+    qualityOfLife: { type: 'linear', multiplier: 3.5 },
+    happiness: { type: 'linear', multiplier: 3.0 },
+    lifeExpectancy: { type: 'exponential', multiplier: 4.2, curve: 2.0 }
   },
-  liver: {
-    alcohol: 5.0,        // Exponential cirrhosis risk after threshold
-    processed_diet: 2.5, // NAFLD progression
-    healthy_diet: -3.2   // Can reverse fatty liver
+
+  // RECREATIONAL DRUGS - Exponential negative for health, exponential positive for short-term happiness
+  drugs: {
+    generalHealth: { type: 'exponential', multiplier: -5.0, curve: 2.3 },
+    happiness: { type: 'exponential', multiplier: 2.5, curve: 1.5 }, // Short-term boost
+    mentalHealth: { type: 'linear', multiplier: -3.8 },
+    physicalFitness: { type: 'minimal', multiplier: -0.5 },
+    qualityOfLife: { type: 'linear', multiplier: -4.2 },
+    lifeExpectancy: { type: 'exponential', multiplier: -4.8, curve: 2.1 }
   },
-  heart: {
-    smoking: 3.8,        // 2-4x higher heart disease risk
-    exercise: -4.0,      // Most protective factor for cardiovascular health
-    chronic_stress: 3.2, // Hypertension, inflammation
-    social_connection: -2.5 // Social support reduces cardiac events by 50%
+
+  // SMOKING - Exponential negative across most metrics
+  smoking: {
+    generalHealth: { type: 'exponential', multiplier: -4.8, curve: 2.2 },
+    physicalFitness: { type: 'exponential', multiplier: -3.5, curve: 1.8 },
+    mentalHealth: { type: 'linear', multiplier: -2.2 },
+    qualityOfLife: { type: 'linear', multiplier: -3.0 },
+    happiness: { type: 'linear', multiplier: -1.8 },
+    lifeExpectancy: { type: 'exponential', multiplier: -5.2, curve: 2.3 }
   },
-  brain: {
-    drugs: 4.8,          // Neurotoxicity, addiction pathways
-    alcohol: 3.5,        // Cognitive decline, brain shrinkage
-    exercise: -3.8,      // Neuroplasticity, BDNF increase
-    sleep_consistency: -4.2, // Memory consolidation, toxin clearance
-    chronic_stress: 3.8  // Cortisol-induced hippocampal damage
+
+  // ALCOHOL - Exponential for liver/health, moderate for mental
+  alcohol: {
+    generalHealth: { type: 'exponential', multiplier: -4.2, curve: 2.0 },
+    mentalHealth: { type: 'linear', multiplier: -2.8 },
+    happiness: { type: 'linear', multiplier: 1.2 }, // Short-term social boost
+    physicalFitness: { type: 'linear', multiplier: -2.0 },
+    qualityOfLife: { type: 'linear', multiplier: -2.5 },
+    lifeExpectancy: { type: 'exponential', multiplier: -3.8, curve: 1.9 }
   },
-  kidneys: {
-    drugs: 4.0,          // Direct nephrotoxicity
-    hydration: -3.5,     // Critical for kidney function
-    chronic_stress: 2.2  // Hypertension-induced damage
+
+  // CHRONIC STRESS - Exponential negative across all metrics
+  chronic_stress: {
+    generalHealth: { type: 'exponential', multiplier: -4.5, curve: 2.1 },
+    mentalHealth: { type: 'exponential', multiplier: -5.0, curve: 2.2 },
+    physicalFitness: { type: 'linear', multiplier: -2.5 },
+    qualityOfLife: { type: 'exponential', multiplier: -4.0, curve: 1.9 },
+    happiness: { type: 'exponential', multiplier: -4.8, curve: 2.0 },
+    lifeExpectancy: { type: 'exponential', multiplier: -3.5, curve: 1.8 }
   },
-  gut: {
-    processed_diet: 3.8, // Microbiome disruption
-    healthy_diet: -3.5,  // Fiber, probiotics restore health
-    chronic_stress: 2.8  // Gut-brain axis disruption
+
+  // HEALTHY DIET - Linear to exponential across metrics
+  healthy_diet: {
+    generalHealth: { type: 'exponential', multiplier: 3.8, curve: 1.7 },
+    physicalFitness: { type: 'linear', multiplier: 2.8 },
+    mentalHealth: { type: 'linear', multiplier: 2.2 },
+    qualityOfLife: { type: 'linear', multiplier: 3.0 },
+    happiness: { type: 'linear', multiplier: 2.0 },
+    lifeExpectancy: { type: 'linear', multiplier: 3.2 }
   },
-  skin: {
-    smoking: 3.2,        // Collagen breakdown, premature aging
-    hydration: -2.8,     // Maintains elasticity
-    chronic_stress: 2.5  // Cortisol-induced inflammation
+
+  // PROCESSED DIET - Exponential negative for health, linear for others
+  processed_diet: {
+    generalHealth: { type: 'exponential', multiplier: -3.8, curve: 1.9 },
+    physicalFitness: { type: 'linear', multiplier: -2.5 },
+    mentalHealth: { type: 'linear', multiplier: -1.8 },
+    qualityOfLife: { type: 'linear', multiplier: -2.2 },
+    happiness: { type: 'minimal', multiplier: -0.5 },
+    lifeExpectancy: { type: 'linear', multiplier: -2.8 }
+  },
+
+  // SOCIAL CONNECTION - Exponential for mental health, linear for others
+  social_connection: {
+    mentalHealth: { type: 'exponential', multiplier: 4.0, curve: 1.9 },
+    happiness: { type: 'exponential', multiplier: 4.2, curve: 2.0 },
+    generalHealth: { type: 'linear', multiplier: 2.5 },
+    qualityOfLife: { type: 'exponential', multiplier: 3.8, curve: 1.8 },
+    physicalFitness: { type: 'minimal', multiplier: 0.3 },
+    lifeExpectancy: { type: 'linear', multiplier: 3.0 }
+  },
+
+  // SOCIAL ISOLATION - Exponential negative for mental health
+  social_isolation: {
+    mentalHealth: { type: 'exponential', multiplier: -3.8, curve: 1.9 },
+    happiness: { type: 'exponential', multiplier: -4.0, curve: 2.0 },
+    generalHealth: { type: 'linear', multiplier: -2.0 },
+    qualityOfLife: { type: 'exponential', multiplier: -3.5, curve: 1.8 },
+    physicalFitness: { type: 'minimal', multiplier: -0.2 },
+    lifeExpectancy: { type: 'linear', multiplier: -2.2 }
+  },
+
+  // SEDENTARY - Linear to exponential negative for fitness/health
+  sedentary: {
+    physicalFitness: { type: 'exponential', multiplier: -4.0, curve: 2.0 },
+    generalHealth: { type: 'exponential', multiplier: -3.2, curve: 1.8 },
+    mentalHealth: { type: 'linear', multiplier: -2.0 },
+    qualityOfLife: { type: 'linear', multiplier: -2.5 },
+    happiness: { type: 'linear', multiplier: -1.8 },
+    lifeExpectancy: { type: 'linear', multiplier: -2.8 }
+  },
+
+  // MEDITATION - Exponential for mental health, linear for others
+  meditation: {
+    mentalHealth: { type: 'exponential', multiplier: 3.5, curve: 1.8 },
+    happiness: { type: 'linear', multiplier: 3.0 },
+    generalHealth: { type: 'linear', multiplier: 2.0 },
+    qualityOfLife: { type: 'linear', multiplier: 2.8 },
+    physicalFitness: { type: 'minimal', multiplier: 0.5 },
+    lifeExpectancy: { type: 'linear', multiplier: 1.8 }
+  },
+
+  // READING - Moderate benefits to mental well-being, minimal effect on health
+  reading: {
+    mentalHealth: { type: 'linear', multiplier: 2.2 },
+    happiness: { type: 'linear', multiplier: 1.8 },
+    generalHealth: { type: 'minimal', multiplier: 0.2 }, // Minimal, not negative
+    qualityOfLife: { type: 'linear', multiplier: 2.0 },
+    physicalFitness: { type: 'minimal', multiplier: 0.0 },
+    lifeExpectancy: { type: 'minimal', multiplier: 0.8 }
+  },
+
+  // JOURNALING - Targeted mental health benefits
+  journaling: {
+    mentalHealth: { type: 'linear', multiplier: 1.8 },
+    happiness: { type: 'linear', multiplier: 1.5 },
+    generalHealth: { type: 'minimal', multiplier: 0.1 },
+    qualityOfLife: { type: 'linear', multiplier: 1.6 },
+    physicalFitness: { type: 'minimal', multiplier: 0.0 },
+    lifeExpectancy: { type: 'minimal', multiplier: 0.3 }
+  },
+
+  // HYDRATION - Linear benefits across most metrics
+  hydration: {
+    generalHealth: { type: 'linear', multiplier: 2.5 },
+    physicalFitness: { type: 'linear', multiplier: 2.0 },
+    mentalHealth: { type: 'linear', multiplier: 1.5 },
+    qualityOfLife: { type: 'linear', multiplier: 1.8 },
+    happiness: { type: 'minimal', multiplier: 0.8 },
+    lifeExpectancy: { type: 'linear', multiplier: 1.2 }
+  },
+
+  // GAMING - Moderate negative effects, some positive for happiness
+  gaming: {
+    mentalHealth: { type: 'linear', multiplier: -1.8 },
+    physicalFitness: { type: 'linear', multiplier: -1.5 },
+    generalHealth: { type: 'linear', multiplier: -1.2 },
+    happiness: { type: 'linear', multiplier: 1.0 }, // Short-term entertainment
+    qualityOfLife: { type: 'linear', multiplier: -1.5 },
+    lifeExpectancy: { type: 'minimal', multiplier: -0.5 }
+  },
+
+  // PORNOGRAPHY - Targeted negative effects on mental health
+  pornography: {
+    mentalHealth: { type: 'linear', multiplier: -2.5 },
+    happiness: { type: 'linear', multiplier: -1.8 },
+    generalHealth: { type: 'minimal', multiplier: -0.3 },
+    qualityOfLife: { type: 'linear', multiplier: -2.0 },
+    physicalFitness: { type: 'minimal', multiplier: 0.0 },
+    lifeExpectancy: { type: 'minimal', multiplier: -0.2 }
   }
 };
 
-// BASELINE HEALTH VALUES based on population health statistics
-const BASELINE_ORGAN_HEALTH = {
-  lungs: 82,    // Most people have good lung function initially
-  heart: 78,    // Cardiovascular disease prevalence
-  brain: 85,    // Cognitive function typically good until later age
-  liver: 80,    // Liver has high regenerative capacity
-  kidneys: 85,  // Kidney function typically stable
-  gut: 75,      // Digestive issues are common
-  skin: 80      // Skin health varies with age/environment
+// BASELINE VALUES based on population health statistics
+const BASELINE_VALUES = {
+  generalHealth: 50,
+  mentalHealth: 50,
+  physicalFitness: 50,
+  qualityOfLife: 50,
+  happiness: 50,
+  lifeExpectancy: 78 // Average life expectancy
 };
 
-interface ExponentialHealthResult {
+interface RealisticHealthResult {
   overallHealth: number;
   organHealth: Record<string, number>;
   exponentialFactors: {
@@ -116,79 +216,128 @@ interface ExponentialHealthResult {
 }
 
 /**
- * Calculate exponential health impact based on medical research
+ * Calculate realistic health impact using tiered effect system
  */
-export const calculateExponentialHealth = (habits: HabitLevels): ExponentialHealthResult => {
-  let totalHealthImpact = 0;
+export const calculateExponentialHealth = (habits: HabitLevels): RealisticHealthResult => {
+  const results = {
+    generalHealth: BASELINE_VALUES.generalHealth,
+    mentalHealth: BASELINE_VALUES.mentalHealth,
+    physicalFitness: BASELINE_VALUES.physicalFitness,
+    qualityOfLife: BASELINE_VALUES.qualityOfLife,
+    happiness: BASELINE_VALUES.happiness,
+    lifeExpectancy: BASELINE_VALUES.lifeExpectancy
+  };
+
   const exponentialFactors = { positive: [], negative: [] };
   const organHealth: Record<string, number> = {};
-  
-  // Calculate exponential impacts
+
+  // Process each habit's impact on all metrics
   Object.entries(habits).forEach(([habitId, habitData]) => {
     const level = habitData?.level || 0;
     if (level === 0) return;
-    
-    const multiplier = EXPONENTIAL_MULTIPLIERS[habitId];
-    if (!multiplier) return;
-    
+
+    const habitImpacts = HABIT_IMPACT_MATRIX[habitId];
+    if (!habitImpacts) return;
+
     const habit = habitsData.habits.find(h => h.id === habitId);
     if (!habit) return;
-    
-    // Exponential scaling: level 3 has much higher impact than level 1
-    const exponentialScale = Math.pow(level, 1.8); // Exponential curve
-    const impact = multiplier * exponentialScale;
-    
-    totalHealthImpact += impact;
-    
-    // Track exponential factors with explanations
-    const factorData = {
-      habit: habit.name,
-      impact: Math.abs(impact),
-      explanation: getExponentialExplanation(habitId, level, impact)
-    };
-    
-    if (impact > 0) {
-      exponentialFactors.positive.push(factorData);
-    } else {
-      exponentialFactors.negative.push(factorData);
+
+    // Apply impacts to each metric
+    Object.entries(habitImpacts).forEach(([metric, impact]) => {
+      let effectValue = 0;
+
+      switch (impact.type) {
+        case 'exponential':
+          // Exponential scaling with custom curve
+          effectValue = impact.multiplier * Math.pow(level, impact.curve || 2.0);
+          break;
+        case 'linear':
+          // Linear scaling
+          effectValue = impact.multiplier * level;
+          break;
+        case 'minimal':
+          // Minimal effect with diminishing returns
+          effectValue = impact.multiplier * Math.sqrt(level);
+          break;
+      }
+
+      if (results[metric] !== undefined) {
+        results[metric] += effectValue;
+      }
+    });
+
+    // Track significant exponential factors
+    const hasExponentialEffect = Object.values(habitImpacts).some(impact => 
+      impact.type === 'exponential' && Math.abs(impact.multiplier) > 3.0
+    );
+
+    if (hasExponentialEffect) {
+      const totalImpact = Object.values(habitImpacts).reduce((sum, impact) => {
+        if (impact.type === 'exponential') {
+          return sum + Math.abs(impact.multiplier * Math.pow(level, impact.curve || 2.0));
+        }
+        return sum;
+      }, 0);
+
+      const factorData = {
+        habit: habit.name,
+        impact: totalImpact,
+        explanation: generateRealisticExplanation(habitId, level, habitImpacts)
+      };
+
+      if (habit.kind === 'good') {
+        exponentialFactors.positive.push(factorData);
+      } else {
+        exponentialFactors.negative.push(factorData);
+      }
     }
   });
-  
-  // Calculate organ-specific health
-  Object.keys(BASELINE_ORGAN_HEALTH).forEach(organId => {
-    let organHealthValue = BASELINE_ORGAN_HEALTH[organId];
-    const vulnerabilities = ORGAN_VULNERABILITIES[organId] || {};
-    
-    Object.entries(habits).forEach(([habitId, habitData]) => {
-      const level = habitData?.level || 0;
-      if (level === 0) return;
-      
-      const vulnerability = vulnerabilities[habitId];
-      if (!vulnerability) return;
-      
-      // Apply organ-specific exponential effects
-      const exponentialScale = Math.pow(level, 1.6);
-      const organImpact = vulnerability * exponentialScale * 3;
-      
-      organHealthValue -= organImpact;
-    });
-    
-    // Ensure realistic bounds
-    organHealth[organId] = Math.max(15, Math.min(100, organHealthValue));
+
+  // Ensure realistic bounds
+  Object.keys(results).forEach(key => {
+    if (key === 'lifeExpectancy') {
+      results[key] = Math.max(65, Math.min(95, results[key]));
+    } else {
+      results[key] = Math.max(10, Math.min(100, results[key]));
+    }
   });
-  
-  // Calculate overall health with exponential weighting
-  const baselineHealth = 50;
-  const overallHealth = Math.max(10, Math.min(100, baselineHealth + (totalHealthImpact * 2.5)));
-  
-  // Calculate risk assessments based on medical statistics
-  const riskAssessment = calculateRiskAssessment(habits, overallHealth, exponentialFactors);
-  
+
+  // Calculate organ health using simplified approach
+  const organIds = ['lungs', 'heart', 'brain', 'liver', 'kidneys', 'gut', 'skin'];
+  organIds.forEach(organId => {
+    // Base organ health on general health with some variation
+    let baseHealth = results.generalHealth;
+    
+    // Apply organ-specific modifiers based on relevant habits
+    if (organId === 'lungs' && habits.smoking?.level > 0) {
+      baseHealth -= habits.smoking.level * 15;
+    }
+    if (organId === 'liver' && habits.alcohol?.level > 0) {
+      baseHealth -= habits.alcohol.level * 18;
+    }
+    if (organId === 'brain' && habits.drugs?.level > 0) {
+      baseHealth -= habits.drugs.level * 20;
+    }
+    if (organId === 'heart' && habits.exercise?.level > 0) {
+      baseHealth += habits.exercise.level * 8;
+    }
+
+    organHealth[organId] = Math.max(15, Math.min(100, baseHealth));
+  });
+
+  // Calculate risk assessment
+  const riskAssessment = {
+    physicalHealth: results.physicalFitness,
+    mentalHealth: results.mentalHealth,
+    lifeExpectancy: results.lifeExpectancy,
+    diseaseRisk: Math.max(5, Math.min(85, 100 - results.generalHealth))
+  };
+
   // Generate prioritized recommendations
-  const prioritizedRecommendations = generatePrioritizedRecommendations(habits, exponentialFactors);
-  
+  const prioritizedRecommendations = generateRealisticRecommendations(habits, results);
+
   return {
-    overallHealth,
+    overallHealth: results.generalHealth,
     organHealth,
     exponentialFactors,
     riskAssessment,
@@ -197,126 +346,83 @@ export const calculateExponentialHealth = (habits: HabitLevels): ExponentialHeal
 };
 
 /**
- * Generate explanations for exponential habit impacts
+ * Generate realistic explanations for habit impacts
  */
-const getExponentialExplanation = (habitId: string, level: number, impact: number): string => {
+const generateRealisticExplanation = (habitId: string, level: number, impacts: any): string => {
   const explanations = {
-    // Exponentially harmful
-    chronic_stress: `Chronic stress elevates cortisol levels exponentially, affecting immune function, cardiovascular health, and cognitive performance. Level ${level} stress can override multiple positive health factors.`,
-    drugs: `Recreational drug use causes exponential damage to neurotransmitter systems and organ function. Even moderate use (level ${level}) significantly increases health risks across all body systems.`,
-    alcohol: `Alcohol consumption has exponential effects on liver function and brain health. Level ${level} consumption dramatically increases cirrhosis and cognitive decline risks.`,
-    smoking: `Smoking creates exponential cardiovascular and respiratory damage. Level ${level} smoking can negate the benefits of multiple positive health habits.`,
-    processed_diet: `Ultra-processed foods trigger exponential inflammatory responses and metabolic dysfunction. Level ${level} consumption significantly increases chronic disease risk.`,
-    
-    // Exponentially beneficial
-    exercise: `Physical exercise provides exponential health benefits across all body systems. Level ${level} activity dramatically improves cardiovascular health, cognitive function, and longevity.`,
-    social_connection: `Strong social connections provide exponential mental health benefits and longevity advantages. Level ${level} social engagement can counteract multiple negative health factors.`,
-    healthy_diet: `A healthy diet provides exponential anti-inflammatory and protective effects. Level ${level} nutrition significantly reduces chronic disease risk across all organs.`,
-    sleep_consistency: `Quality sleep is the highest priority health factor, providing exponential recovery and cognitive benefits. Level ${level} sleep consistency dramatically improves all health metrics.`,
-    hydration: `Proper hydration provides exponential benefits for cellular function and organ health. Level ${level} hydration significantly improves physical and cognitive performance.`
+    sleep_consistency: `Quality sleep at level ${level} has exponential effects on recovery, immune function, and cognitive performance. Sleep is the foundation of health.`,
+    exercise: `Physical activity at level ${level} provides exponential cardiovascular benefits and dramatically improves multiple health markers.`,
+    drugs: `Recreational drug use at level ${level} causes exponential damage to brain chemistry and organ function, while providing short-term mood elevation.`,
+    smoking: `Smoking at level ${level} creates exponential cardiovascular and respiratory damage that compounds over time.`,
+    alcohol: `Alcohol consumption at level ${level} has exponential effects on liver function and moderate effects on mental health.`,
+    chronic_stress: `Chronic stress at level ${level} elevates cortisol exponentially, affecting all body systems and mental well-being.`,
+    social_connection: `Social connection at level ${level} provides exponential mental health benefits and significantly improves quality of life.`,
+    reading: `Reading at level ${level} provides moderate cognitive benefits and mental stimulation, with minimal direct health effects.`,
+    meditation: `Meditation at level ${level} has exponential benefits for stress reduction and mental clarity.`,
+    healthy_diet: `A healthy diet at level ${level} provides broad health benefits across multiple systems.`
   };
-  
-  return explanations[habitId] || `This habit has significant impact on your health at level ${level}.`;
+
+  return explanations[habitId] || `This habit at level ${level} affects your health in multiple ways.`;
 };
 
 /**
- * Calculate risk assessments based on medical statistics
+ * Generate realistic, prioritized recommendations
  */
-const calculateRiskAssessment = (habits: HabitLevels, overallHealth: number, exponentialFactors: any) => {
-  // Physical health calculation
-  const physicalHabits = ['exercise', 'healthy_diet', 'sleep_consistency', 'hydration', 'smoking', 'alcohol', 'drugs', 'processed_diet'];
-  let physicalImpact = 0;
-  
-  physicalHabits.forEach(habitId => {
-    const level = habits[habitId]?.level || 0;
-    const multiplier = EXPONENTIAL_MULTIPLIERS[habitId] || 0;
-    physicalImpact += multiplier * Math.pow(level, 1.8);
-  });
-  
-  const physicalHealth = Math.max(10, Math.min(100, 50 + (physicalImpact * 3)));
-  
-  // Mental health calculation
-  const mentalHabits = ['social_connection', 'meditation', 'chronic_stress', 'social_isolation', 'sleep_consistency'];
-  let mentalImpact = 0;
-  
-  mentalHabits.forEach(habitId => {
-    const level = habits[habitId]?.level || 0;
-    const multiplier = EXPONENTIAL_MULTIPLIERS[habitId] || 0;
-    mentalImpact += multiplier * Math.pow(level, 1.8);
-  });
-  
-  const mentalHealth = Math.max(10, Math.min(100, 50 + (mentalImpact * 3.5)));
-  
-  // Life expectancy based on epidemiological data
-  const baseLifeExpectancy = 78;
-  const lifeExpectancyModifier = (overallHealth - 50) * 0.4;
-  const lifeExpectancy = Math.max(65, Math.min(95, baseLifeExpectancy + lifeExpectancyModifier));
-  
-  // Disease risk calculation
-  const negativeImpact = exponentialFactors.negative.reduce((sum, factor) => sum + factor.impact, 0);
-  const positiveImpact = exponentialFactors.positive.reduce((sum, factor) => sum + factor.impact, 0);
-  const netRisk = Math.max(5, Math.min(85, 25 + (negativeImpact * 2) - (positiveImpact * 1.5)));
-  
-  return {
-    physicalHealth,
-    mentalHealth,
-    lifeExpectancy,
-    diseaseRisk: netRisk
-  };
-};
-
-/**
- * Generate prioritized recommendations based on exponential impact potential
- */
-const generatePrioritizedRecommendations = (habits: HabitLevels, exponentialFactors: any) => {
+const generateRealisticRecommendations = (habits: HabitLevels, results: any) => {
   const recommendations = [];
-  
-  // Critical recommendations - address exponentially harmful habits
-  const criticalHarmful = ['chronic_stress', 'drugs', 'smoking', 'alcohol'];
-  criticalHarmful.forEach(habitId => {
+
+  // Critical: Address life-threatening exponential habits
+  const criticalHabits = ['chronic_stress', 'drugs', 'smoking'];
+  criticalHabits.forEach(habitId => {
     const level = habits[habitId]?.level || 0;
-    if (level > 0) {
+    if (level > 1) {
       const habit = habitsData.habits.find(h => h.id === habitId);
       recommendations.push({
         priority: 'critical' as const,
-        action: `Reduce ${habit?.name.toLowerCase()} immediately`,
-        rationale: `This habit has exponential negative effects that can override multiple positive health factors.`,
-        expectedImpact: `Reducing this by one level could improve overall health by 15-25%.`
+        action: `Immediately reduce ${habit?.name.toLowerCase()}`,
+        rationale: `This habit has exponential negative effects that override positive health factors.`,
+        expectedImpact: `Could improve overall health by 20-35%.`
       });
     }
   });
-  
-  // High priority - implement exponentially beneficial habits
-  const criticalBeneficial = ['sleep_consistency', 'exercise', 'healthy_diet'];
-  criticalBeneficial.forEach(habitId => {
-    const level = habits[habitId]?.level || 0;
-    if (level < 2) {
-      const habit = habitsData.habits.find(h => h.id === habitId);
-      recommendations.push({
-        priority: 'high' as const,
-        action: `Increase ${habit?.name.toLowerCase()}`,
-        rationale: `This habit provides exponential health benefits that can counteract negative factors.`,
-        expectedImpact: `Improving this could increase overall health by 10-20%.`
-      });
-    }
-  });
-  
-  // Moderate priority - optimize other beneficial habits
-  if (recommendations.length < 5) {
-    const moderateBeneficial = ['social_connection', 'hydration', 'meditation'];
-    moderateBeneficial.forEach(habitId => {
-      const level = habits[habitId]?.level || 0;
-      if (level < 3) {
-        const habit = habitsData.habits.find(h => h.id === habitId);
-        recommendations.push({
-          priority: 'moderate' as const,
-          action: `Improve ${habit?.name.toLowerCase()}`,
-          rationale: `This habit provides significant health benefits and supports overall well-being.`,
-          expectedImpact: `Could improve specific health metrics by 5-10%.`
-        });
-      }
+
+  // High: Implement exponential beneficial habits
+  if ((habits.sleep_consistency?.level || 0) < 2) {
+    recommendations.push({
+      priority: 'high' as const,
+      action: `Prioritize consistent, quality sleep`,
+      rationale: `Sleep has the highest exponential impact on health, recovery, and cognitive function.`,
+      expectedImpact: `Could improve overall health by 25-40%.`
     });
   }
-  
-  return recommendations.slice(0, 5); // Return top 5 recommendations
+
+  if ((habits.exercise?.level || 0) < 2) {
+    recommendations.push({
+      priority: 'high' as const,
+      action: `Increase regular physical exercise`,
+      rationale: `Exercise provides exponential benefits for cardiovascular health and overall fitness.`,
+      expectedImpact: `Could improve physical fitness by 30-50%.`
+    });
+  }
+
+  // Moderate: Optimize other beneficial habits
+  if ((habits.social_connection?.level || 0) < 2) {
+    recommendations.push({
+      priority: 'moderate' as const,
+      action: `Strengthen social connections`,
+      rationale: `Social bonds provide exponential mental health benefits and improve quality of life.`,
+      expectedImpact: `Could improve mental health by 15-25%.`
+    });
+  }
+
+  if ((habits.healthy_diet?.level || 0) < 2) {
+    recommendations.push({
+      priority: 'moderate' as const,
+      action: `Improve dietary habits`,
+      rationale: `A healthy diet provides broad benefits across multiple health systems.`,
+      expectedImpact: `Could improve general health by 10-20%.`
+    });
+  }
+
+  return recommendations.slice(0, 5);
 };
