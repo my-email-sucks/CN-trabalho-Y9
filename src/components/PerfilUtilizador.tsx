@@ -2,6 +2,7 @@ import React from 'react';
 import { X, Info, Heart, AlertTriangle, CheckCircle, TrendingDown, TrendingUp } from 'lucide-react';
 import { useAtlasStore } from '../store/useAtlasStore';
 import { calculateOrganHealth } from '../utils/organHealthCalculator';
+import { generateExponentialOrganMessage, getRelevantExponentialFactors } from '../utils/exponentialHealthCalculator';
 import organsData from '../data/organs.json';
 
 export const PerfilUtilizador: React.FC = () => {
