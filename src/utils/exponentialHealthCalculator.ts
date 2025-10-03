@@ -10,6 +10,7 @@
 
 import { HabitLevels } from '../store/useAtlasStore';
 import habitsData from '../data/habits.json';
+import organsData from '../data/organs.json';
 
 // TARGETED HABIT EFFECTS - Each habit has specific primary and secondary impacts
 const HABIT_EFFECTS = {
@@ -513,4 +514,115 @@ const generateTargetedRecommendations = (habits: HabitLevels, exponentialFactors
   });
   
   return recommendations.slice(0, 5);
+};
+
+/**
+ * Generate personalized organ message based on exponential factors
+ */
+export const generateExponentialOrganMessage = (
+  organId: string, 
+  organHealth: number, 
+  exponentialFactors: any, 
+  selectedHabits: HabitLevels
+): string => {
+  const organ = organsData.organs.find(o => o.id === organId);
+  if (!organ) return "Órgão não encontrado.";
+  
+  const healthRatio = organHealth / 100;
+  const badFactors = exponentialFactors.negative || [];
+  const goodFactors = exponentialFactors.positive || [];
+  
+  if (healthRatio >= 0.8) {
+    if (goodFactors.length > 0) {
+      const bestHabit = goodFactors[0];
+      return `O teu ${organ.name.toLowerCase()} está em excelente estado! Os teus hábitos saudáveis, especialmente ${bestHabit.habit.toLowerCase()}, estão a proporcionar benefícios exponenciais.`;
+    }
+    return `O teu ${organ.name.toLowerCase()} está em excelente estado! Continua com os teus hábitos saudáveis.`;
+  }
+  
+  if (healthRatio >= 0.6) {
+    if (badFactors.length > 0) {
+      const worstHabit = badFactors[0];
+      return `O teu ${organ.name.toLowerCase()} está em bom estado, mas o ${worstHabit.habit.toLowerCase()} está a ter um impacto exponencial negativo. Considera reduzir este hábito.`;
+    }
+    return `O teu ${organ.name.toLowerCase()} está em bom estado. Alguns ajustes nos hábitos podem melhorar ainda mais a sua saúde.`;
+  }
+  
+  if (healthRatio >= 0.4) {
+    if (badFactors.length > 0) {
+      const worstHabit = badFactors[0];
+      return `O teu ${organ.name.toLowerCase()} está em estado preocupante. O ${worstHabit.habit.toLowerCase()} está a causar danos exponenciais. É urgente fazer mudanças.`;
+    }
+    return `O teu ${organ.name.toLowerCase()} está em estado preocupante. Recomenda-se fazer mudanças significativas nos hábitos.`;
+  }
+  
+  return `O teu ${organ.name.toLowerCase()} está em estado crítico. É essencial procurar ajuda médica e fazer mudanças imediatas nos hábitos prejudiciais.`;
+};
+
+/**
+ * Get relevant exponential factors for a specific organ
+ */
+export const getRelevantExponentialFactors = (
+  organId: string, 
+  exponentialFactors: any, 
+  selectedHabits: HabitLevels
+): Array<{ type: 'positive' | 'negative', habitName: string, mechanism: string, level: number, impact: number }> => {
+  const relevantFactors = [];
+  
+  // Get organ-specific habit mappings
+  const organHabitMap = {
+    lungs: ['smoking', 'exercise', 'chronic_stress'],
+    heart: ['exercise', 'smoking', 'chronic_stress', 'healthy_diet'],
+    brain: ['sleep_consistency', 'drugs', 'alcohol', 'meditation', 'reading'],
+    liver: ['alcohol', 'drugs', 'healthy_diet', 'processed_diet'],
+    kidneys: ['hydration', 'drugs', 'alcohol'],
+    gut: ['healthy_diet', 'processed_diet', 'chronic_stress'],
+    skin: ['hydration', 'smoking', 'sleep_consistency']
+  };
+  
+  const relevantHabits = organHabitMap[organId] || [];
+  
+  // Process positive factors
+  (exponentialFactors.positive || []).forEach(factor => {
+    const habitId = Object.keys(selectedHabits).find(id => {
+      const habit = habitsData.habits.find(h => h.id === id);
+      return habit?.name === factor.habit;
+    });
+    
+    if (habitId && relevantHabits.includes(habitId)) {
+      const habit = habitsData.habits.find(h => h.id === habitId);
+      const level = selectedHabits[habitId]?.level || 0;
+      
+      relevantFactors.push({
+        type: 'positive',
+        habitName: habit?.name || factor.habit,
+        mechanism: `Beneficia ${organId} através de múltiplos mecanismos`,
+        level,
+        impact: factor.impact
+      });
+    }
+  });
+  
+  // Process negative factors
+  (exponentialFactors.negative || []).forEach(factor => {
+    const habitId = Object.keys(selectedHabits).find(id => {
+      const habit = habitsData.habits.find(h => h.id === id);
+      return habit?.name === factor.habit;
+    });
+    
+    if (habitId && relevantHabits.includes(habitId)) {
+      const habit = habitsData.habits.find(h => h.id === habitId);
+      const level = selectedHabits[habitId]?.level || 0;
+      
+      relevantFactors.push({
+        type: 'negative',
+        habitName: habit?.name || factor.habit,
+        mechanism: `Prejudica ${organId} de forma exponencial`,
+        level,
+        impact: -factor.impact
+      });
+    }
+  });
+  
+  return relevantFactors.sort((a, b) => Math.abs(b.impact) - Math.abs(a.impact));
 };
